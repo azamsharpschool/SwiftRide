@@ -11,7 +11,7 @@ import SwiftUI
 struct SwiftRideApp: App {
     var body: some Scene {
         WindowGroup {
-            UberHomeScreen() 
+            HomeScreen() 
         }
     }
 }

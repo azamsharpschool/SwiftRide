@@ -18,20 +18,33 @@ struct TripDestination: Identifiable {
 }
 
 struct PlanYourRideScreen: View {
-    @State private var pickupLocation: String = "1200 Richmond Ave, Houston TX 77042"
+    
+    private enum FocusedField {
+        case pickup
+        case destination
+    }
+    
+    @State private var pickupLocation: String = ""
     @State private var destination: String = ""
-
-    let recentDestinations: [TripDestination] = [
-        TripDestination(name: "Champion Automotive", address: "14106 Stuebner Airline Rd, Houston, TX", distance: "3.3 mi", icon: "clock"),
-        TripDestination(name: "George Bush Intercontinental Airport (IAH)", address: "2800 N Terminal Rd, Houston, TX", distance: "13 mi", icon: "airplane.departure"),
-        TripDestination(name: "Terminal D", address: "Level 2 Gates D1 - D12, George Bush Intercontinental", distance: "14 mi", icon: "clock"),
-        TripDestination(name: "William P. Hobby Airport (HOU)", address: "7800 Airport Blvd, Houston, TX", distance: "32 mi", icon: "airplane.departure"),
-        TripDestination(name: "Safe Tech Auto Glass", address: "15825 State Highway 249, Houston, TX", distance: "2.4 mi", icon: "clock")
+    @FocusState private var focusedField: FocusedField?
+    @State private var showChooseARideScreen: Bool = false
+ 
+    let places: [Place] = [
+        Place(name: "Golden Gate Bridge", subTitle: "San Francisco, CA"),
+        Place(name: "Central Park", subTitle: "New York, NY"),
+        Place(name: "Eiffel Tower", subTitle: "Paris, France"),
+        Place(name: "Big Ben", subTitle: "London, UK"),
+        Place(name: "Sydney Opera House", subTitle: "Sydney, Australia")
     ]
 
+    let locationSearchService = LocationSearchService()
+    
     var body: some View {
+        
+        let places = locationSearchService.places
+        
         VStack {
-          
+            
             VStack(spacing: 12) {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.gray, lineWidth: 1)
@@ -43,6 +56,7 @@ struct PlanYourRideScreen: View {
                             TextField("Pickup location", text: $pickupLocation)
                                 .textFieldStyle(PlainTextFieldStyle())
                                 .padding(.leading, 5)
+                                .focused($focusedField, equals: .pickup)
                         }
                         .padding(.horizontal)
                     )
@@ -57,34 +71,43 @@ struct PlanYourRideScreen: View {
                             TextField("Where to?", text: $destination)
                                 .textFieldStyle(PlainTextFieldStyle())
                                 .padding(.leading, 5)
+                                .focused($focusedField, equals: .destination)
                         }
                         .padding(.horizontal)
                     )
             }
             .padding(.horizontal)
 
-            List(recentDestinations) { destination in
-                HStack {
-                    Image(systemName: destination.icon)
-                        .foregroundColor(.blue)
-                    VStack(alignment: .leading) {
-                        Text(destination.name)
-                            .font(.headline)
-                        Text(destination.address)
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+            List(places) { place in
+                PlaceView(place: place)
+                    .onTapGesture {
+                        switch focusedField {
+                            case .pickup:
+                                pickupLocation = place.address
+                            case .destination:
+                                destination = place.address
+                                showChooseARideScreen = true
+                            default:
+                                break
+                        }
                     }
-                    Spacer()
-                    Text(destination.distance)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-                .padding(.vertical, 5)
             }
             .listStyle(PlainListStyle())
         }
+        .task(id: destination, {
+            try? await Task.sleep(for: .seconds(1.0))
+            locationSearchService.searchLocation(search: destination)
+        })
+        .task(id: pickupLocation, {
+            try? await Task.sleep(for: .seconds(1.0))
+            locationSearchService.searchLocation(search: pickupLocation)
+        })
         .navigationTitle("Plan your ride")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showChooseARideScreen) {
+            ChooseARideScreen() 
+        }
+        
     }
 }
 
