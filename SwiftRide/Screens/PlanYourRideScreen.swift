@@ -28,6 +28,8 @@ struct PlanYourRideScreen: View {
     @State private var destination: String = ""
     @FocusState private var focusedField: FocusedField?
     @State private var showChooseARideScreen: Bool = false
+    
+    @State private var trip = Trip()
  
     let places: [Place] = [
         Place(name: "Golden Gate Bridge", subTitle: "San Francisco, CA"),
@@ -53,7 +55,7 @@ struct PlanYourRideScreen: View {
                         HStack {
                             Image(systemName: "circle.fill")
                                 .foregroundColor(.blue)
-                            TextField("Pickup location", text: $pickupLocation)
+                            TextField("Pickup location", text: $trip.pickup)
                                 .textFieldStyle(PlainTextFieldStyle())
                                 .padding(.leading, 5)
                                 .focused($focusedField, equals: .pickup)
@@ -68,7 +70,7 @@ struct PlanYourRideScreen: View {
                         HStack {
                             Image(systemName: "square.fill")
                                 .foregroundColor(.black)
-                            TextField("Where to?", text: $destination)
+                            TextField("Where to?", text: $trip.destination)
                                 .textFieldStyle(PlainTextFieldStyle())
                                 .padding(.leading, 5)
                                 .focused($focusedField, equals: .destination)
@@ -83,9 +85,9 @@ struct PlanYourRideScreen: View {
                     .onTapGesture {
                         switch focusedField {
                             case .pickup:
-                                pickupLocation = place.address
+                                trip.pickup = place.address
                             case .destination:
-                                destination = place.address
+                                trip.destination = place.address
                                 showChooseARideScreen = true
                             default:
                                 break
@@ -94,14 +96,18 @@ struct PlanYourRideScreen: View {
             }
             .listStyle(PlainListStyle())
         }
-        .task(id: destination, {
+        .task(id: trip, {
             try? await Task.sleep(for: .seconds(1.0))
-            locationSearchService.searchLocation(search: destination)
+            switch focusedField {
+                case .pickup:
+                    locationSearchService.searchLocation(search: trip.pickup)
+                case .destination:
+                    locationSearchService.searchLocation(search: trip.destination)
+                default:
+                    break
+            }
         })
-        .task(id: pickupLocation, {
-            try? await Task.sleep(for: .seconds(1.0))
-            locationSearchService.searchLocation(search: pickupLocation)
-        })
+        
         .navigationTitle("Plan your ride")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showChooseARideScreen) {

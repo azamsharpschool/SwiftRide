@@ -7,9 +7,8 @@
 
 import Foundation
 
-struct Trip: Identifiable {
+struct Trip: Identifiable, Equatable {
     let id = UUID()
-    let destination: String
-    let address: String
-    let icon: String
+    var pickup: String = ""
+    var destination: String = ""
 }

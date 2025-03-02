@@ -49,7 +49,7 @@ struct ChooseARideScreen: View {
                     Text("Choose \(selectedRide?.name ?? "a ride")")
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(selectedRide != nil ? Color.gray.opacity(0.8) : Color.gray.opacity(0.4))
+                        .background(selectedRide != nil ? Color.blue.opacity(0.8) : Color.gray.opacity(0.4))
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
