@@ -13,6 +13,7 @@ import Observation
 class LocationSearchService: NSObject, MKLocalSearchCompleterDelegate {
     
     var places: [Place] = []
+    var message: String = ""
     private var localSearchCompleter: MKLocalSearchCompleter
     
     override init() {
@@ -33,7 +34,7 @@ class LocationSearchService: NSObject, MKLocalSearchCompleterDelegate {
     }
     
     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: any Error) {
-        print(error.localizedDescription)
+        message = error.localizedDescription
     }
 }
 

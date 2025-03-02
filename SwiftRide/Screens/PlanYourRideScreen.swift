@@ -24,21 +24,10 @@ struct PlanYourRideScreen: View {
         case destination
     }
     
-    @State private var pickupLocation: String = ""
-    @State private var destination: String = ""
     @FocusState private var focusedField: FocusedField?
     @State private var showChooseARideScreen: Bool = false
-    
     @State private var trip = Trip()
  
-    let places: [Place] = [
-        Place(name: "Golden Gate Bridge", subTitle: "San Francisco, CA"),
-        Place(name: "Central Park", subTitle: "New York, NY"),
-        Place(name: "Eiffel Tower", subTitle: "Paris, France"),
-        Place(name: "Big Ben", subTitle: "London, UK"),
-        Place(name: "Sydney Opera House", subTitle: "Sydney, Australia")
-    ]
-
     let locationSearchService = LocationSearchService()
     
     var body: some View {
