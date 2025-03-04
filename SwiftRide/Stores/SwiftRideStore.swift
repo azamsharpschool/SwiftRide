@@ -19,6 +19,7 @@ class SwiftRideStore {
     }
     
     func register(name: String, email: String, password: String, phone: String, role: Role, serviceOption: ServiceOption? = nil) async throws {
+        
         let data: [String: AnyJSON] = ["name": .string(name), "phone": .string(phone), "role_id": .integer(role.rawValue), "service_option_id": serviceOption != nil ? .integer(serviceOption!.rawValue) : nil]
         
         try await client.auth.signUp(email: email, password: password, data: data)
