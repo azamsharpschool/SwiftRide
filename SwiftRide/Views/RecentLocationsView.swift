@@ -17,7 +17,7 @@ struct RecentLocationsView: View {
     
     var body: some View {
         
-        Text("body")
+        Text("Recent Locations View")
         /*
         List(recentTrips) { recentTrip in
             RecentTripView(destination: recentTrip.destination, address: recentTrip.address, icon: recentTrip.icon)
