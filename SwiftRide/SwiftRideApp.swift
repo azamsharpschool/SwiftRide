@@ -70,7 +70,7 @@ struct SwiftRideApp: App {
                     case .signedIn:
                         SwiftRideTabBarScreen()
                     case .signedOut:
-                        RegisterScreen()
+                        LoginScreen()
                 }
             }
             .environment(SwiftRideStore(client: client))

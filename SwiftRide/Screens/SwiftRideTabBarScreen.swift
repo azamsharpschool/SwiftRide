@@ -27,7 +27,7 @@ struct SwiftRideTabBarScreen: View {
                 }
             
             NavigationStack {
-                Text("Account")
+                SettingsScreen() 
             }.tabItem {
                     Image(systemName: "person.crop.circle.fill")
                     Text("Account")

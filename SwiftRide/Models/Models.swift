@@ -40,3 +40,38 @@ enum Role: Int, Identifiable, CaseIterable {
         }
     }
 }
+
+struct RideOption: Identifiable {
+    let id = UUID()
+    let name: String
+    let passengers: Int
+    let price: String
+    let discountedPrice: String?
+    let arrivalTime: String
+    let timeAway: String
+    let description: String
+    let imageName: String
+    let isSelected: Bool
+}
+
+enum ServiceOption: Int, Identifiable, CaseIterable {
+    case comfort = 1
+    case uberX = 2
+    case uberXL = 3
+    case blackSUV = 4
+    
+    var id: Self { self }
+    
+    var title: String {
+        switch self {
+            case .comfort:
+                return "Comfort"
+            case .uberX:
+                return "Uber X"
+            case .uberXL:
+                return "Uber XL"
+            case .blackSUV:
+                return "Black SUV"
+        }
+    }
+}

@@ -4,18 +4,21 @@ import Supabase
 struct RegisterScreen: View {
     
     @Environment(SwiftRideStore.self) private var swiftRideStore
+    @Environment(\.dismiss) private var dismiss
+    
     @State private var message: String?
     
     private struct RegisterForm {
-        var fullName: String = "Mohammad Azam"
-        var email: String = "azamsharp@gmail.com"
-        var phoneNumber: String = "281-857-3727"
-        var password: String = "password"
+        var fullName: String = ""
+        var email: String = ""
+        var phoneNumber: String = ""
+        var password: String = ""
         var selectedRole: Role = .rider
         var termsAccepted: Bool = false
+        var serviceOption: ServiceOption = .comfort
         
         var isValid: Bool {
-            return !fullName.isEmptyOrWhitespace &&
+            !fullName.isEmptyOrWhitespace &&
             email.isEmail &&
             phoneNumber.isPhone &&
             !password.isEmptyOrWhitespace &&
@@ -23,15 +26,22 @@ struct RegisterScreen: View {
         }
     }
     
+    
+    
     @State private var registerForm = RegisterForm()
     
     private func register() async {
         do {
-            try await swiftRideStore.register(name: registerForm.fullName,
-                                              email: registerForm.email,
-                                              password: registerForm.password,
-                                              phone: registerForm.phoneNumber,
-                                              role: registerForm.selectedRole)
+            try await swiftRideStore.register(
+                name: registerForm.fullName,
+                email: registerForm.email,
+                password: registerForm.password,
+                phone: registerForm.phoneNumber,
+                role: registerForm.selectedRole,
+                serviceOption: registerForm.serviceOption
+            )
+            
+            dismiss()
             
         } catch {
             message = error.localizedDescription
@@ -39,78 +49,91 @@ struct RegisterScreen: View {
     }
     
     var body: some View {
-        
         NavigationStack {
-            VStack(spacing: 20) {
+            VStack {
                 
-                // Full Name
-                TextField("Full Name", text: $registerForm.fullName)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                Text("Create an Account")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                Text("Sign up to start your ride with SwiftRide.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 
-                // Email
-                TextField("Email", text: $registerForm.email)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal)
-                    .keyboardType(.emailAddress)
-                    .autocapitalization(.none)
-                
-                // Phone Number
-                TextField("Phone Number", text: $registerForm.phoneNumber)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal)
-                    .keyboardType(.phonePad)
-                
-                // Password
-                SecureField("Password", text: $registerForm.password)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal)
-                
-                // Role Picker
-                Picker("Register as:", selection: $registerForm.selectedRole) {
-                    ForEach(Role.allCases) { role in
-                        Text(role.title)
-                            .tag(role)
+                Form {
+                    Section {
+                        TextField("Full Name", text: $registerForm.fullName)
+                            .textContentType(.name)
+                            .autocapitalization(.words)
+                        
+                        TextField("Email", text: $registerForm.email)
+                            .textContentType(.emailAddress)
+                            .keyboardType(.emailAddress)
+                            .autocapitalization(.none)
+                        
+                        TextField("Phone Number", text: $registerForm.phoneNumber)
+                            .textContentType(.telephoneNumber)
+                            .keyboardType(.phonePad)
+                        
+                        SecureField("Password", text: $registerForm.password)
+                            .textContentType(.newPassword)
+                            
+                    }
+                    
+                    Section {
+                        Picker("Register as:", selection: $registerForm.selectedRole) {
+                            ForEach(Role.allCases) { role in
+                                Text(role.title).tag(role)
+                            }
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                    }
+                    
+                    if registerForm.selectedRole == .driver {
+                        Picker("Service Option:", selection: $registerForm.serviceOption) {
+                                ForEach(ServiceOption.allCases) { serviceOption in
+                                    Text(serviceOption.title).tag(serviceOption)
+                                }
+                            }
+                    }
+                    
+                    Section {
+                        Toggle("I agree to the Terms & Conditions", isOn: $registerForm.termsAccepted)
+                            .font(.subheadline)
+                    }
+                    
+                    Section {
+                        Button {
+                            Task { await register() }
+                        } label: {
+                            Text("Register")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        //.disabled(!registerForm.isValid)
                     }
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(.horizontal)
-                
-                // Terms & Conditions Toggle
-                Toggle("Accept Terms & Conditions", isOn: $registerForm.termsAccepted)
-                    .padding(.horizontal)
-                
-                // Register Button
-                Button(action: {
-                    Task {
-                        await register()
-                    }
-                }) {
-                    Text("Register")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(registerForm.isValid ? Color.blue : Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                }
-                .disabled(!registerForm.isValid) // Disable button if terms are not accepted
+                .scrollContentBackground(.hidden)
+                .background(Color(.systemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding()
                 
                 if let message {
                     Text(message)
+                        .foregroundColor(.red)
+                        .font(.footnote)
+                        .padding(.horizontal)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(.red)
-                        .padding()
                 }
                 
                 Spacer()
-            }.navigationTitle("Register")
+            }
+            .padding()
         }
-       
     }
 }
-
 
 #Preview {
     RegisterScreen()

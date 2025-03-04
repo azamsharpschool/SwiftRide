@@ -1,20 +1,10 @@
 import SwiftUI
 
-struct RideOption: Identifiable {
-    let id = UUID()
-    let name: String
-    let passengers: Int
-    let price: String
-    let discountedPrice: String?
-    let arrivalTime: String
-    let timeAway: String
-    let description: String
-    let imageName: String
-    let isSelected: Bool
-}
-
 struct ChooseARideScreen: View {
+    
     @State private var selectedRide: RideOption?
+    @Environment(SwiftRideStore.self) private var swiftRideStore 
+    
 
     let rideOptions: [RideOption] = [
         RideOption(name: "Comfort", passengers: 4, price: "$32.06", discountedPrice: nil, arrivalTime: "11:57 PM", timeAway: "11 min away", description: "Newer cars with extra legroom", imageName: "car.fill", isSelected: true),
@@ -115,4 +105,5 @@ struct RideOptionRow: View {
 
 #Preview {
     ChooseARideScreen()
+        .environment(SwiftRideStore(client: .development))
 }
