@@ -12,10 +12,16 @@ import Supabase
 @Observable
 class SwiftRideStore {
     
-    let client: SupabaseClient
+    private var client: SupabaseClient
     
     init(client: SupabaseClient) {
         self.client = client
+    }
+    
+    var currentUser: User {
+        get async throws {
+            return try await client.auth.user()
+        }
     }
     
     func register(name: String, email: String, password: String, phone: String, role: Role, serviceOption: ServiceOption? = nil) async throws {
@@ -33,8 +39,13 @@ class SwiftRideStore {
         try await client.auth.signOut()
     }
     
-    func updateDriverStatus(_ isOnline: Bool) async throws {
-        let user = try await client.auth.user()
+    func updateDriverStatus(userId: UUID, isOnline: Bool, latitude: Double, longitude: Double) async throws {
+        
+        let data: [String: AnyJSON] = ["user_id": .string(userId.uuidString), "is_online": .bool(isOnline), "latitude": .double(latitude), "longitude": .double(longitude)]
+        
+        try await client.from("driver_statuses")
+            .upsert(data, onConflict: "user_id")
+            .execute()
     }
     
     // options are based on what is around you...

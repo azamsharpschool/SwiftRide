@@ -33,14 +33,23 @@ struct RiderHomeScreen: View {
             RecentLocationsView()
             
             Spacer()
-        }.sheet(isPresented: $showTripPlanningScreen) {
+        }
+        .navigationDestination(isPresented: $showTripPlanningScreen) {
+            PlanYourRideScreen() 
+        }
+        /*
+        .sheet(isPresented: $showTripPlanningScreen) {
             NavigationStack {
                 PlanYourRideScreen()
             }
-        }
+        } */
     }
 }
 
 #Preview {
-    RiderHomeScreen()
+    NavigationStack {
+        RiderHomeScreen()
+    }
+    .environment(SwiftRideStore(client: .development))
+    .environment(LocationManager())
 }

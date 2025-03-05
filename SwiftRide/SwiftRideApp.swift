@@ -52,7 +52,6 @@ struct SwiftRideApp: App {
                 signInStatus = .signedOut
             default:
                 break
-                
             }
         }
     }
@@ -79,6 +78,7 @@ struct SwiftRideApp: App {
                 }
             }
             .environment(SwiftRideStore(client: client))
+            .environment(LocationManager())
             .task {
                 do {
                     try await listenAuthEvents()
