@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SwiftRideTabBarScreen: View {
+struct SwiftRiderTabBarScreen: View {
     
     var body: some View {
         TabView {
@@ -38,5 +38,5 @@ struct SwiftRideTabBarScreen: View {
 }
 
 #Preview {
-    SwiftRideTabBarScreen()
+    SwiftRiderTabBarScreen()
 }
