@@ -25,10 +25,8 @@ struct PlanYourRideScreen: View {
     
     @Environment(LocationManager.self) private var locationManager
     
-    @FocusState private var focusedField: TripField?
     @State private var showChooseARideScreen: Bool = false
     @State private var trip = Trip()
-    @State private var isSheetPresented: Bool = true
     @State private var activeField: TripField?
     
     let locationSearchService = LocationSearchService()
@@ -36,7 +34,6 @@ struct PlanYourRideScreen: View {
     var body: some View {
         
         let places = locationSearchService.places
-        let _ = print(places)
         
         VStack {
             
@@ -45,21 +42,7 @@ struct PlanYourRideScreen: View {
             }
             
         }
-        .task(id: trip, {
-            print("task")
-            let _ = print(focusedField)
-            try? await Task.sleep(for: .seconds(1.0))
-            switch focusedField {
-                case .pickup:
-                    locationSearchService.searchLocation(search: trip.pickup)
-                case .destination:
-                    locationSearchService.searchLocation(search: trip.destination)
-                default:
-                    break
-            }
-        })
-        
-        .sheet(isPresented: $isSheetPresented, content: {
+        .sheet(isPresented: .constant(true), content: {
             
             VStack {
                 
