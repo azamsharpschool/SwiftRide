@@ -33,6 +33,10 @@ class SwiftRideStore {
         try await client.auth.signOut()
     }
     
+    func updateDriverStatus(_ isOnline: Bool) async throws {
+        let user = try await client.auth.user()
+    }
+    
     // options are based on what is around you...
     func getRideOptions() -> [RideOption] {
         [

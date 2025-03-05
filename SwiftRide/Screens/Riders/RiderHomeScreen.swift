@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HomeScreen: View {
+struct RiderHomeScreen: View {
     
     @State private var search: String = ""
     @State private var showTripPlanningScreen: Bool = false
@@ -42,5 +42,5 @@ struct HomeScreen: View {
 }
 
 #Preview {
-    HomeScreen()
+    RiderHomeScreen()
 }

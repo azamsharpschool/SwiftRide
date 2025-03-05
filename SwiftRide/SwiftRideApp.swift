@@ -70,8 +70,8 @@ struct SwiftRideApp: App {
                     case .rider:
                         SwiftRiderTabBarScreen()
                     case .driver:
-                        Text("Driver")
-                    case nil:
+                        SwiftDriverTabBarScreen()
+                    default:
                         EmptyView()
                     }
                 case .signedOut:

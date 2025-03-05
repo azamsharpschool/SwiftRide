@@ -13,7 +13,7 @@ struct SwiftRiderTabBarScreen: View {
         TabView {
             
             NavigationStack {
-                HomeScreen() 
+                RiderHomeScreen() 
             }.tabItem {
                     Image(systemName: "house")
                     Text("Home")
