@@ -48,9 +48,7 @@ struct PlanYourRideScreen: View {
                     iconName: "circle.fill",
                     iconColor: .blue,
                     onTap: {
-                        withAnimation {
-                            activeField = .pickup
-                        }
+                        activeField = .pickup
                     },
                     onChange: { value in
                         locationSearchService.searchLocation(search: value)
