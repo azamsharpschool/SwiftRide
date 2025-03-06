@@ -15,6 +15,7 @@ enum TripField {
 
 struct PlanYourRideScreen: View {
     
+    @Environment(SwiftRideStore.self) private var swiftRideStore
     @Environment(LocationManager.self) private var locationManager
     
     @State private var trip = Trip()
@@ -47,7 +48,9 @@ struct PlanYourRideScreen: View {
                     iconName: "circle.fill",
                     iconColor: .blue,
                     onTap: {
-                        activeField = .pickup
+                        withAnimation {
+                            activeField = .pickup
+                        }
                     },
                     onChange: { value in
                         locationSearchService.searchLocation(search: value)
@@ -77,12 +80,13 @@ struct PlanYourRideScreen: View {
     
     var body: some View {
         
+        @Bindable var locationManager = self.locationManager
         let places = locationSearchService.places
         
         VStack {
-            
-            Map {
-                
+            Text("Nearby Drivers \(swiftRideStore.nearbyDrivers.count)")
+            Map(position: $locationManager.cameraPosition) {
+                UserAnnotation()
             }
             
         }
@@ -112,14 +116,21 @@ struct PlanYourRideScreen: View {
                         ChooseARideScreen()
                 }
             }
-            .presentationDetents([.fraction(0.25), .large])
-            .interactiveDismissDisabled()
+            .presentationDetents([.medium, .large])
+            //.interactiveDismissDisabled()
             
         })
         
         .task {
-            // find the user's location
-            // locationManager.requestLocation()
+            
+            locationManager.requestLocation()
+            
+            do {
+                try await swiftRideStore.loadNearbyDrivers()
+                try await swiftRideStore.startListeningForNearbyDrivers()
+            } catch {
+                print(error.localizedDescription)
+            }
         }
         
         .navigationTitle("Plan your ride")

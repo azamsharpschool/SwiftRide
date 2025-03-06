@@ -75,3 +75,18 @@ enum ServiceOption: Int, Identifiable, CaseIterable {
         }
     }
 }
+
+
+struct Driver: Codable {
+    
+    let userId: UUID
+    let isOnline: Bool
+    let latitude: Double
+    let longitude: Double
+    
+    private enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case isOnline = "is_online" // Maps "isOnline" to "is_online" in JSON
+        case latitude, longitude
+    }
+}

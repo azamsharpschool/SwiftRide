@@ -13,6 +13,7 @@ import Supabase
 class SwiftRideStore {
     
     private var client: SupabaseClient
+    var nearbyDrivers: [Driver] = []
     
     init(client: SupabaseClient) {
         self.client = client
@@ -46,6 +47,39 @@ class SwiftRideStore {
         try await client.from("driver_statuses")
             .upsert(data, onConflict: "user_id")
             .execute()
+    }
+    
+    func loadNearbyDrivers() async throws {
+        // load only drivers that are online
+        nearbyDrivers = try await client
+            .from("driver_statuses")
+            .select()
+            .eq("is_online", value: true)
+            .execute()
+            .value
+    }
+    
+    func startListeningForNearbyDrivers() async throws {
+        // Create channel
+        let channel = client.realtimeV2.channel("nearby-drivers")
+        let updates = channel.postgresChange(UpdateAction.self, schema: "public", table: "driver_statuses")
+        
+        await channel.subscribe()
+        
+        for await update in updates {
+            let driver = try update.decodeRecord(as: Driver.self, decoder: JSONDecoder())
+            // if driver is offline then remove from nearby drivers else append
+            if driver.isOnline {
+                self.nearbyDrivers.append(driver) // Add new driver
+            } else {
+                // If driver is offline, remove from the array
+                self.nearbyDrivers.removeAll { $0.userId == driver.userId }
+            }
+        }
+    }
+    
+    func stopListeningForNearbyDrivers() {
+        
     }
     
     // options are based on what is around you...
