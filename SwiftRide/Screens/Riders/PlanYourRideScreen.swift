@@ -8,14 +8,6 @@
 import SwiftUI
 import MapKit
 
-struct TripDestination: Identifiable {
-    let id = UUID()
-    let name: String
-    let address: String
-    let distance: String
-    let icon: String
-}
-
 // Example supporting models
 enum TripField {
     case pickup, destination
@@ -25,11 +17,63 @@ struct PlanYourRideScreen: View {
     
     @Environment(LocationManager.self) private var locationManager
     
-    @State private var showChooseARideScreen: Bool = false
     @State private var trip = Trip()
     @State private var activeField: TripField?
     
     let locationSearchService = LocationSearchService()
+    @State private var activeSheet: PlanYourRideSheets?
+    
+    private enum PlanYourRideSheets: Identifiable {
+        case inputLocation // For pickup and destination input
+        case chooseARide  // For choosing a ride
+        
+        var id: Int {
+            switch self {
+            case .inputLocation:
+                return 1
+            case .chooseARide:
+                return 2
+            }
+        }
+    }
+    
+    var locationInputView: some View {
+        VStack {
+            VStack(spacing: 12) {
+                // Pickup TextField
+                LocationTextField(
+                    placeholder: "Pickup location",
+                    text: $trip.pickup,
+                    iconName: "circle.fill",
+                    iconColor: .blue,
+                    onTap: {
+                        activeField = .pickup
+                    },
+                    onChange: { value in
+                        locationSearchService.searchLocation(search: value)
+                    }
+                )
+                
+                // Destination TextField
+                LocationTextField(
+                    placeholder: "Destination",
+                    text: $trip.destination,
+                    iconName: "circle.fill",
+                    iconColor: .black,
+                    onTap: {
+                        activeField = .destination
+                    },
+                    onChange: { value in
+                        locationSearchService.searchLocation(search: value)
+                    }
+                )
+            }
+            .padding(.horizontal)
+    
+        }
+        .padding()
+        .presentationDetents([.large])
+    }
     
     var body: some View {
         
@@ -42,80 +86,37 @@ struct PlanYourRideScreen: View {
             }
             
         }
-        .sheet(isPresented: .constant(true), content: {
-            
-            VStack {
-                
-                VStack(spacing: 12) {
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.gray, lineWidth: 1)
-                        .frame(height: 50)
-                        .overlay(
-                            HStack {
-                                Button(action: {
-                                    activeField = .pickup
-                                }) {
-                                    HStack {
-                                        Image(systemName: "circle.fill")
-                                            .foregroundColor(.blue)
-                                        TextField("Pickup location", text: $trip.pickup)
-                                            .textFieldStyle(PlainTextFieldStyle())
-                                            .onChange(of: trip.pickup) {
-                                                locationSearchService.searchLocation(search: trip.pickup)
-                                            }
-                                    }
-                                }.buttonStyle(.plain)
-                                
-                            }
-                            .padding(.horizontal)
-                        )
-                    
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.gray, lineWidth: 1)
-                        .frame(height: 50)
-                        .overlay(
-                            HStack {
-                                Button(action: {
-                                    activeField = .destination
-                                }) {
-                                    HStack {
-                                        Image(systemName: "square.fill")
-                                                .foregroundColor(.black)
-                                        TextField("Where to?", text: $trip.destination)
-                                            .textFieldStyle(PlainTextFieldStyle())
-                                            .onChange(of: trip.destination) {
-                                                locationSearchService.searchLocation(search: trip.destination)
-                                            }
-                                    }
-                                }.buttonStyle(.plain)
-                                
-                            }.padding(.horizontal)
-                        )
-                    
-                }
-                .padding(.horizontal)
-                
-                
-                List(places) { place in
-                    PlaceView(place: place)
-                        .onTapGesture {
-                            switch activeField {
-                                case .pickup:
-                                    trip.pickup = place.address
-                                case .destination:
-                                    trip.destination = place.address
-                                    showChooseARideScreen = true
-                                default:
-                                    break
+        .onAppear(perform: {
+            activeSheet = .inputLocation
+        })
+        .sheet(item: $activeSheet, content: { sheet in
+            Group {
+                switch sheet {
+                    case .inputLocation:
+                        VStack {
+                            locationInputView
+                            PlaceListView(places: places) { place in
+                                switch activeField {
+                                    case .pickup:
+                                        trip.pickup = place.address
+                                    case .destination:
+                                        trip.destination = place.address
+                                        activeSheet = .chooseARide
+                                    default:
+                                        break
+                                }
                             }
                         }
+                       
+                    case .chooseARide:
+                        ChooseARideScreen()
                 }
-                .listStyle(PlainListStyle())
-                
             }
-            .padding()
-            .presentationDetents([.medium])
+            .presentationDetents([.fraction(0.25), .large])
+            .interactiveDismissDisabled()
+            
         })
+        
         .task {
             // find the user's location
             // locationManager.requestLocation()
@@ -123,9 +124,7 @@ struct PlanYourRideScreen: View {
         
         .navigationTitle("Plan your ride")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showChooseARideScreen) {
-            ChooseARideScreen()
-        }
+        
     }
 }
 
@@ -133,5 +132,7 @@ struct PlanYourRideScreen: View {
 #Preview {
     NavigationStack {
         PlanYourRideScreen()
-    }.environment(LocationManager())
+    }
+    .environment(SwiftRideStore(client: .development))
+    .environment(LocationManager())
 }
