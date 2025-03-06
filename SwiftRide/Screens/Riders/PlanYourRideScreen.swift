@@ -85,6 +85,15 @@ struct PlanYourRideScreen: View {
             Text("Nearby Drivers \(swiftRideStore.nearbyDrivers.count)")
             Map(position: $locationManager.cameraPosition) {
                 UserAnnotation()
+                ForEach(swiftRideStore.nearbyDrivers) { driver in
+                    Annotation("Driver", coordinate: driver.coordinate) {
+                        Image(systemName: "car.fill") // Use a car icon
+                            .foregroundColor(.blue)
+                            .font(.system(size: 24))
+                            .background(Color.white)  
+                            .clipShape(Circle())
+                    }
+                }
             }
             
         }

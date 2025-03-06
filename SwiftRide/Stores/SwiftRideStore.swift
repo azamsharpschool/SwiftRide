@@ -70,7 +70,16 @@ class SwiftRideStore {
             let driver = try update.decodeRecord(as: Driver.self, decoder: JSONDecoder())
             // if driver is offline then remove from nearby drivers else append
             if driver.isOnline {
-                self.nearbyDrivers.append(driver) // Add new driver
+                // find the driver and update the coordinate property
+                guard let index = nearbyDrivers.firstIndex(where: { $0.userId == driver.userId }) else {
+                    self.nearbyDrivers.append(driver)
+                    return
+                }
+                
+                // if exists then update the driver 
+                nearbyDrivers[index].latitude = driver.coordinate.latitude
+                nearbyDrivers[index].longitude = driver.coordinate.longitude
+                
             } else {
                 // If driver is offline, remove from the array
                 self.nearbyDrivers.removeAll { $0.userId == driver.userId }

@@ -31,7 +31,8 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
             case .notDetermined:
                 locationManager.requestWhenInUseAuthorization()
             case .authorizedWhenInUse, .authorizedAlways:
-                locationManager.startUpdatingLocation()
+                locationManager.requestLocation()
+                //locationManager.startUpdatingLocation()
             case .denied, .restricted:
                 errorMessage = "Location access is denied or restricted."
             default:
@@ -46,7 +47,8 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         }
         
         if manager.authorizationStatus == .authorizedWhenInUse || manager.authorizationStatus == .authorizedAlways {
-            manager.startUpdatingLocation()
+            //manager.startUpdatingLocation()
+            manager.requestLocation()
         } else {
             errorMessage = "Location access is not authorized."
         }

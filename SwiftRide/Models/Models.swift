@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MapKit 
 
 struct Place: Identifiable {
     let id = UUID()
@@ -77,12 +78,20 @@ enum ServiceOption: Int, Identifiable, CaseIterable {
 }
 
 
-struct Driver: Codable {
+struct Driver: Codable, Identifiable {
     
     let userId: UUID
     let isOnline: Bool
-    let latitude: Double
-    let longitude: Double
+    var latitude: Double
+    var longitude: Double
+    
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+    
+    var id: UUID {
+        userId 
+    }
     
     private enum CodingKeys: String, CodingKey {
         case userId = "user_id"
