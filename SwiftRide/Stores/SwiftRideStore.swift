@@ -8,6 +8,7 @@
 import Foundation
 import Observation
 import Supabase
+import MapKit
 
 struct Response: Codable {
     let id: Int
@@ -65,31 +66,12 @@ class SwiftRideStore {
          */
     }
     
-    func loadNearbyDriversBy(latitude: Double, longitude: Double) async throws {
-        // load only drivers that are online
-        /*
-        nearbyDrivers = try await client
-            .from("driver_statuses")
-            .select()
-            .eq("is_online", value: true)
-            .execute()
-            .value
-         */
-        
-        let rawResponse = try await client
-            .rpc("nearby_drivers", params: ["lat": latitude, "long": longitude])
-            .execute()
-            .data
-        
-        print(String(data: rawResponse, encoding: .utf8) ?? "No data")
+    func loadNearbyDriversBy(coordinate: CLLocationCoordinate2D) async throws {
         
         nearbyDrivers = try await client
-            .rpc("nearby_drivers", params: ["lat": latitude, "long": longitude])
+            .rpc("nearby_drivers", params: ["lat": coordinate.latitude, "long": coordinate.longitude])
             .execute()
             .value
-        
-       
-        //print(response)
     }
     
     func startListeningForNearbyDrivers() async throws {

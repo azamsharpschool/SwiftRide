@@ -123,7 +123,7 @@ struct PlanYourRideScreen: View {
                         ChooseARideScreen()
                 }
             }
-            .presentationDetents([.medium, .large])
+            .presentationDetents([.fraction(0.25), .medium, .large])
             .interactiveDismissDisabled()
             
         })
@@ -139,7 +139,7 @@ struct PlanYourRideScreen: View {
                 guard let userLocation = locationManager.userLocation else { return }
                 let userCoordinate = userLocation.coordinate
                 
-                try await swiftRideStore.loadNearbyDriversBy(latitude: userCoordinate.latitude, longitude: userCoordinate.longitude)
+                try await swiftRideStore.loadNearbyDriversBy(coordinate: userCoordinate)
                 //try await swiftRideStore.startListeningForNearbyDrivers()
             } catch {
                 print(error.localizedDescription)
