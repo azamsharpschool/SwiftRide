@@ -124,16 +124,22 @@ struct PlanYourRideScreen: View {
                 }
             }
             .presentationDetents([.medium, .large])
-            //.interactiveDismissDisabled()
+            .interactiveDismissDisabled()
             
         })
-        
-        .task {
-            
+        .onAppear(perform: {
             locationManager.requestLocation()
+        })
+       
+        
+        .task(id: locationManager.userLocation) {
             
             do {
-                try await swiftRideStore.loadNearbyDrivers()
+                
+                guard let userLocation = locationManager.userLocation else { return }
+                let userCoordinate = userLocation.coordinate
+                
+                try await swiftRideStore.loadNearbyDriversBy(latitude: userCoordinate.latitude, longitude: userCoordinate.longitude)
                 //try await swiftRideStore.startListeningForNearbyDrivers()
             } catch {
                 print(error.localizedDescription)

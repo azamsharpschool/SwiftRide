@@ -49,14 +49,23 @@ class SwiftRideStore {
     
     func updateDriverStatus(userId: UUID, isOnline: Bool, latitude: Double, longitude: Double) async throws {
         
-        let data: [String: AnyJSON] = ["user_id": .string(userId.uuidString), "is_online": .bool(isOnline), "latitude": .double(latitude), "longitude": .double(longitude)]
+        //let data: [String: AnyJSON] = ["user_id": .string(userId.uuidString), "is_online": .bool(isOnline), "latitude": .double(latitude), "longitude": .double(longitude)]
         
+        let data: [String: AnyJSON] = ["user_id": .string(userId.uuidString), "is_online": .bool(isOnline), "location": .string("POINT(\(longitude) \(latitude))")]
+        
+        try await client
+            .from("drivers")
+            .upsert(data, onConflict: "user_id")
+            .execute()
+        
+        /*
         try await client.from("driver_statuses")
             .upsert(data, onConflict: "user_id")
             .execute()
+         */
     }
     
-    func loadNearbyDrivers() async throws {
+    func loadNearbyDriversBy(latitude: Double, longitude: Double) async throws {
         // load only drivers that are online
         /*
         nearbyDrivers = try await client
@@ -67,14 +76,19 @@ class SwiftRideStore {
             .value
          */
         
-        let responses: [Response] = try await client
-            .rpc("nearby_drivers", params: ["lat": 37.33503609423616, "long": -122.0089290461413])
+        let rawResponse = try await client
+            .rpc("nearby_drivers", params: ["lat": latitude, "long": longitude])
+            .execute()
+            .data
+        
+        print(String(data: rawResponse, encoding: .utf8) ?? "No data")
+        
+        nearbyDrivers = try await client
+            .rpc("nearby_drivers", params: ["lat": latitude, "long": longitude])
             .execute()
             .value
         
-        print(responses)
-        //print(String(data: rawResponse, encoding: .utf8) ?? "No data")
-        
+       
         //print(response)
     }
     

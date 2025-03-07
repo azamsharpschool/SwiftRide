@@ -44,7 +44,8 @@ struct DriverHomeScreen: View {
         
         do {
             let user = try await swiftRideStore.currentUser
-            let coordinate = generateRandomCoordinatesNearApplePark()
+            //let coordinate = generateRandomCoordinatesNearApplePark()
+            let coordinate = userLocation.coordinate
             try await swiftRideStore.updateDriverStatus(userId: user.id, isOnline: isOnline, latitude: coordinate.latitude, longitude: coordinate.longitude)
             
         } catch {
@@ -63,6 +64,11 @@ struct DriverHomeScreen: View {
         }
         .onChange(of: isOnline) {
             
+            Task {
+                await updateDriverStatus()
+            }
+            
+            /*
             if isOnline {
                 // Start the timer when the driver goes online
                 timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
@@ -80,7 +86,9 @@ struct DriverHomeScreen: View {
                 Task {
                     await updateDriverStatus()
                 }
-            } 
+            } */
+            
+            
         }
     }
 }

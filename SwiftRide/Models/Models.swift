@@ -84,6 +84,7 @@ struct Driver: Codable, Identifiable {
     let isOnline: Bool
     var latitude: Double
     var longitude: Double
+    var distance: Double
     
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
@@ -96,6 +97,8 @@ struct Driver: Codable, Identifiable {
     private enum CodingKeys: String, CodingKey {
         case userId = "user_id"
         case isOnline = "is_online" // Maps "isOnline" to "is_online" in JSON
-        case latitude, longitude
+        case latitude = "lat"
+        case longitude = "long"
+        case distance = "dist_meters"
     }
 }

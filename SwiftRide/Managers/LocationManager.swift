@@ -30,14 +30,14 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         switch locationManager.authorizationStatus {
             case .notDetermined:
                 locationManager.requestWhenInUseAuthorization()
+                locationManager.requestLocation() // Add this line
             case .authorizedWhenInUse, .authorizedAlways:
                 locationManager.requestLocation()
-                //locationManager.startUpdatingLocation()
             case .denied, .restricted:
                 errorMessage = "Location access is denied or restricted."
             default:
                 break
-            }
+        }
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
@@ -47,7 +47,6 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         }
         
         if manager.authorizationStatus == .authorizedWhenInUse || manager.authorizationStatus == .authorizedAlways {
-            //manager.startUpdatingLocation()
             manager.requestLocation()
         } else {
             errorMessage = "Location access is not authorized."
