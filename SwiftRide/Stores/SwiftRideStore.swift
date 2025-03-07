@@ -9,6 +9,13 @@ import Foundation
 import Observation
 import Supabase
 
+struct Response: Codable {
+    let id: Int
+    let lat: Double
+    let long: Double
+    let dist_meters: Double
+}
+
 @Observable
 class SwiftRideStore {
     
@@ -51,12 +58,24 @@ class SwiftRideStore {
     
     func loadNearbyDrivers() async throws {
         // load only drivers that are online
+        /*
         nearbyDrivers = try await client
             .from("driver_statuses")
             .select()
             .eq("is_online", value: true)
             .execute()
             .value
+         */
+        
+        let responses: [Response] = try await client
+            .rpc("nearby_drivers", params: ["lat": 37.33503609423616, "long": -122.0089290461413])
+            .execute()
+            .value
+        
+        print(responses)
+        //print(String(data: rawResponse, encoding: .utf8) ?? "No data")
+        
+        //print(response)
     }
     
     func startListeningForNearbyDrivers() async throws {

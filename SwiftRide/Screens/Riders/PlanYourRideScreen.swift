@@ -134,7 +134,7 @@ struct PlanYourRideScreen: View {
             
             do {
                 try await swiftRideStore.loadNearbyDrivers()
-                try await swiftRideStore.startListeningForNearbyDrivers()
+                //try await swiftRideStore.startListeningForNearbyDrivers()
             } catch {
                 print(error.localizedDescription)
             }
