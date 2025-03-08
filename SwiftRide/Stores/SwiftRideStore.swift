@@ -55,7 +55,7 @@ class SwiftRideStore {
         let data: [String: AnyJSON] = ["user_id": .string(userId.uuidString), "is_online": .bool(isOnline), "location": .string("POINT(\(longitude) \(latitude))")]
         
         try await client
-            .from("drivers")
+            .from("driver_statuses")
             .upsert(data, onConflict: "user_id")
             .execute()
         
