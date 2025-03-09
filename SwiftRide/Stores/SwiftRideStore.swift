@@ -10,12 +10,7 @@ import Observation
 import Supabase
 import MapKit
 
-struct Response: Codable {
-    let id: Int
-    let lat: Double
-    let long: Double
-    let dist_meters: Double
-}
+
 
 @Observable
 class SwiftRideStore {
@@ -41,21 +36,15 @@ class SwiftRideStore {
         
         if response.session != nil, userRegistration.selectedRole == .driver {
             
-            let driver = Driver(userId: response.user.id, isOnline: false, licensePlate: userRegistration.licensePlate, make: userRegistration.make, model: userRegistration.model, serviceOption: userRegistration.serviceOption)
-           
+            let driverData: [String: AnyJSON] = ["user_id": .string(response.user.id.uuidString), "license_plate": .string(userRegistration.licensePlate), "make": .string(userRegistration.make), "model": .string(userRegistration.model), "service_option_id": .integer(userRegistration.serviceOption.rawValue)]
+            
             try await client
                 .from("drivers")
-                .insert(driver)
+                .insert(driverData)
                 .execute()
         }
     }
-    
-    func register(name: String, email: String, password: String, phone: String, role: Role, serviceOption: ServiceOption? = nil) async throws {
-        
-        let data: [String: AnyJSON] = ["name": .string(name), "phone": .string(phone), "role_id": .integer(role.rawValue), "service_option_id": serviceOption != nil ? .integer(serviceOption!.rawValue) : nil]
-        
-        try await client.auth.signUp(email: email, password: password, data: data)
-    }
+   
     
     func login(email: String, password: String) async throws {
         try await client.auth.signIn(email: email, password: password)
@@ -67,20 +56,13 @@ class SwiftRideStore {
     
     func updateDriverStatus(userId: UUID, isOnline: Bool, latitude: Double, longitude: Double) async throws {
         
-        //let data: [String: AnyJSON] = ["user_id": .string(userId.uuidString), "is_online": .bool(isOnline), "latitude": .double(latitude), "longitude": .double(longitude)]
-        
-        let data: [String: AnyJSON] = ["user_id": .string(userId.uuidString), "is_online": .bool(isOnline), "location": .string("POINT(\(longitude) \(latitude))")]
+        let data: [String: AnyJSON] = ["is_online": .bool(isOnline), "location": .string("POINT(\(longitude) \(latitude))")]
         
         try await client
-            .from("driver_statuses")
-            .upsert(data, onConflict: "user_id")
+            .from("drivers")
+            .update(data)
+            .eq("user_id", value: userId)
             .execute()
-        
-        /*
-        try await client.from("driver_statuses")
-            .upsert(data, onConflict: "user_id")
-            .execute()
-         */
     }
     
     func loadNearbyDriversBy(coordinate: CLLocationCoordinate2D) async throws {
@@ -90,7 +72,7 @@ class SwiftRideStore {
             .execute()
             .value
     }
-    
+    /*
     func startListeningForNearbyDrivers() async throws {
         // Create channel
         let channel = client.realtimeV2.channel("nearby-drivers")
@@ -99,11 +81,11 @@ class SwiftRideStore {
         await channel.subscribe()
         
         for await update in updates {
-            let driver = try update.decodeRecord(as: Driver.self, decoder: JSONDecoder())
+            let driverStatus = try update.decodeRecord(as: DriverStatus.self, decoder: JSONDecoder())
             // if driver is offline then remove from nearby drivers else append
-            if driver.isOnline {
+            if driverStatus.isOnline {
                 // find the driver and update the coordinate property
-                guard let index = nearbyDrivers.firstIndex(where: { $0.userId == driver.userId }) else {
+                guard let index = nearbyDrivers.firstIndex(where: { $0.userId == driverStatus.userId }) else {
                     self.nearbyDrivers.append(driver)
                     return
                 }
@@ -117,7 +99,7 @@ class SwiftRideStore {
                 self.nearbyDrivers.removeAll { $0.userId == driver.userId }
             }
         }
-    }
+    } */
     
     func stopListeningForNearbyDrivers() {
         

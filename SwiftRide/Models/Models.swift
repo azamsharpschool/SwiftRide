@@ -77,35 +77,34 @@ enum ServiceOption: Int, Identifiable, CaseIterable, Codable {
     }
 }
 
-
 struct Driver: Codable, Identifiable {
-    
     let userId: UUID
-    let isOnline: Bool
-    var latitude: Double?
-    var longitude: Double?
-    
-    var licensePlate: String
-    var make: String
-    var model: String
+    let licensePlate: String
+    let make: String
+    let model: String
     var rating: Int?
-    var serviceOption: ServiceOption
-    
-    var coordinate: CLLocationCoordinate2D {
-        CLLocationCoordinate2D(latitude: latitude ?? 0.0, longitude: longitude ?? 0.0)
-    }
+    var isOnline: Bool = false
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
+    var distance: Double?
+    var serviceOption: ServiceOption = .uberX
     
     var id: UUID {
-        userId 
+        userId
+    }
+    
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
     
     private enum CodingKeys: String, CodingKey {
         case userId = "user_id"
-        case isOnline = "is_online" // Maps "isOnline" to "is_online" in JSON
-        case latitude = "lat"
-        case longitude = "long"
         case licensePlate = "license_plate"
         case make, model, rating
+        case isOnline = "is_online"
+        case latitude = "lat"
+        case longitude = "long"
+        case distance = "dist_meters"
         case serviceOption = "service_option_id"
     }
 }
