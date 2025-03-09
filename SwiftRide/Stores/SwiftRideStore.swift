@@ -33,6 +33,23 @@ class SwiftRideStore {
         }
     }
     
+    func register(userRegistration: UserRegistration) async throws {
+        
+        let data: [String: AnyJSON] = ["name": .string(userRegistration.fullName), "phone": .string(userRegistration.phoneNumber), "role_id": .integer(userRegistration.selectedRole.rawValue)]
+                                       
+        let response = try await client.auth.signUp(email: userRegistration.email, password: userRegistration.password, data: data)
+        
+        if response.session != nil, userRegistration.selectedRole == .driver {
+            
+            let driver = Driver(userId: response.user.id, isOnline: false, licensePlate: userRegistration.licensePlate, make: userRegistration.make, model: userRegistration.model, serviceOption: userRegistration.serviceOption)
+           
+            try await client
+                .from("drivers")
+                .insert(driver)
+                .execute()
+        }
+    }
+    
     func register(name: String, email: String, password: String, phone: String, role: Role, serviceOption: ServiceOption? = nil) async throws {
         
         let data: [String: AnyJSON] = ["name": .string(name), "phone": .string(phone), "role_id": .integer(role.rawValue), "service_option_id": serviceOption != nil ? .integer(serviceOption!.rawValue) : nil]
@@ -92,8 +109,8 @@ class SwiftRideStore {
                 }
                 
                 // if exists then update the driver 
-                nearbyDrivers[index].latitude = driver.coordinate.latitude
-                nearbyDrivers[index].longitude = driver.coordinate.longitude
+                nearbyDrivers[index].latitude = driver.latitude
+                nearbyDrivers[index].longitude = driver.longitude
                 
             } else {
                 // If driver is offline, remove from the array

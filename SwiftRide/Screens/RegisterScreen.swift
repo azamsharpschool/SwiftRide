@@ -1,46 +1,39 @@
 import SwiftUI
 import Supabase
 
+struct UserRegistration {
+    var fullName: String = ""
+    var email: String = ""
+    var phoneNumber: String = ""
+    var password: String = ""
+    var selectedRole: Role = .rider
+    var rating: Int?
+    var termsAccepted: Bool = false
+    var serviceOption: ServiceOption = .comfort
+    var licensePlate: String = ""
+    var make: String = ""
+    var model: String = ""
+    
+    var isValid: Bool {
+        !fullName.isEmptyOrWhitespace &&
+        email.isEmail &&
+        phoneNumber.isPhone &&
+        !password.isEmptyOrWhitespace &&
+        termsAccepted
+    }
+}
+
 struct RegisterScreen: View {
     
     @Environment(SwiftRideStore.self) private var swiftRideStore
     @Environment(\.dismiss) private var dismiss
     
     @State private var message: String?
-    
-    private struct RegisterForm {
-        var fullName: String = ""
-        var email: String = ""
-        var phoneNumber: String = ""
-        var password: String = ""
-        var selectedRole: Role = .rider
-        var termsAccepted: Bool = false
-        var serviceOption: ServiceOption = .comfort
-        
-        var isValid: Bool {
-            !fullName.isEmptyOrWhitespace &&
-            email.isEmail &&
-            phoneNumber.isPhone &&
-            !password.isEmptyOrWhitespace &&
-            termsAccepted
-        }
-    }
-    
-    
-    
-    @State private var registerForm = RegisterForm()
+    @State private var registerForm = UserRegistration()
     
     private func register() async {
         do {
-            try await swiftRideStore.register(
-                name: registerForm.fullName,
-                email: registerForm.email,
-                password: registerForm.password,
-                phone: registerForm.phoneNumber,
-                role: registerForm.selectedRole,
-                serviceOption: registerForm.serviceOption
-            )
-            
+            try await swiftRideStore.register(userRegistration: registerForm)
             dismiss()
             
         } catch {
@@ -96,7 +89,11 @@ struct RegisterScreen: View {
                                 ForEach(ServiceOption.allCases) { serviceOption in
                                     Text(serviceOption.title).tag(serviceOption)
                                 }
-                            }
+                        }
+                        TextField("License Plate", text: $registerForm.licensePlate)
+                        
+                        TextField("Make", text: $registerForm.make)
+                        TextField("Model", text: $registerForm.model)
                     }
                     
                     Section {

@@ -86,6 +86,7 @@ struct PlanYourRideScreen: View {
             Map(position: $locationManager.cameraPosition) {
                 UserAnnotation()
                 ForEach(swiftRideStore.nearbyDrivers) { driver in
+                    
                     Annotation("Driver", coordinate: driver.coordinate) {
                         Image(systemName: "car.fill") // Use a car icon
                             .foregroundColor(.blue)

@@ -55,7 +55,7 @@ struct RideOption: Identifiable {
     let isSelected: Bool
 }
 
-enum ServiceOption: Int, Identifiable, CaseIterable {
+enum ServiceOption: Int, Identifiable, CaseIterable, Codable {
     case comfort = 1
     case uberX = 2
     case uberXL = 3
@@ -82,12 +82,17 @@ struct Driver: Codable, Identifiable {
     
     let userId: UUID
     let isOnline: Bool
-    var latitude: Double
-    var longitude: Double
-    var distance: Double
+    var latitude: Double?
+    var longitude: Double?
+    
+    var licensePlate: String
+    var make: String
+    var model: String
+    var rating: Int?
+    var serviceOption: ServiceOption
     
     var coordinate: CLLocationCoordinate2D {
-        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        CLLocationCoordinate2D(latitude: latitude ?? 0.0, longitude: longitude ?? 0.0)
     }
     
     var id: UUID {
@@ -99,6 +104,8 @@ struct Driver: Codable, Identifiable {
         case isOnline = "is_online" // Maps "isOnline" to "is_online" in JSON
         case latitude = "lat"
         case longitude = "long"
-        case distance = "dist_meters"
+        case licensePlate = "license_plate"
+        case make, model, rating
+        case serviceOption = "service_option_id"
     }
 }

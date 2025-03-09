@@ -68,8 +68,14 @@ struct SwiftRideApp: App {
                     switch role {
                     case .rider:
                         SwiftRiderTabBarScreen()
+                            .task {
+                                // load rider details 
+                            }
                     case .driver:
                         SwiftDriverTabBarScreen()
+                            .task {
+                                // load driver details
+                            }
                     default:
                         EmptyView()
                     }
