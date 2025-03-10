@@ -87,14 +87,13 @@ struct PlanYourRideScreen: View {
                 UserAnnotation()
                 ForEach(swiftRideStore.nearbyDrivers) { driver in
                     
-                    /*
                     Annotation("Driver", coordinate: driver.coordinate) {
                         Image(systemName: "car.fill") // Use a car icon
                             .foregroundColor(.blue)
                             .font(.system(size: 24))
                             .background(Color.white)  
                             .clipShape(Circle())
-                    } */
+                    }
                 }
             }
             
@@ -126,6 +125,9 @@ struct PlanYourRideScreen: View {
                 }
             }
             .presentationDetents([.fraction(0.25), .medium, .large])
+            .presentationBackgroundInteraction(
+                .enabled(upThrough: .medium)
+            )
             .interactiveDismissDisabled()
             
         })

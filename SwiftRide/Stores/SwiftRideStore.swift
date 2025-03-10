@@ -67,6 +67,14 @@ class SwiftRideStore {
     
     func loadNearbyDriversBy(coordinate: CLLocationCoordinate2D) async throws {
         
+        let data = try await client
+           .rpc("nearby_drivers", params: ["lat": coordinate.latitude, "long": coordinate.longitude])
+           .execute()
+           .data
+        
+        let dataAsString = String(data: data, encoding: .utf8)
+        print(dataAsString)
+        
         nearbyDrivers = try await client
             .rpc("nearby_drivers", params: ["lat": coordinate.latitude, "long": coordinate.longitude])
             .execute()
