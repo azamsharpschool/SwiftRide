@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import MapKit 
+import MapKit
 
 struct Place: Identifiable {
     let id = UUID()
@@ -24,7 +24,6 @@ struct Trip: Identifiable, Equatable {
     var destination: String = ""
 }
 
-
 enum Role: Int, Identifiable, CaseIterable {
     
     case rider = 1
@@ -34,48 +33,111 @@ enum Role: Int, Identifiable, CaseIterable {
     
     var title: String {
         switch self {
-            case .rider:
-                return "Rider"
-            case .driver:
-                return "Driver"
+        case .rider:
+            return "Rider"
+        case .driver:
+            return "Driver"
         }
     }
 }
 
 struct RideOption: Identifiable {
     let id = UUID()
-    let name: String
-    let passengers: Int
-    let price: String
-    let discountedPrice: String?
-    let arrivalTime: String
-    let timeAway: String
+    let service: ServiceOption
+    let estimatedDistance: Double // in miles
+    let estimatedDuration: Double // in minutes
+    let arrivalTime: Date
     let description: String
     let imageName: String
-    let isSelected: Bool
+
+    /// Computed property to display time until arrival dynamically
+    var timeAway: String {
+        let timeInterval = arrivalTime.timeIntervalSinceNow
+
+        if timeInterval <= 0 {
+            return "Arriving now"
+        } else if timeInterval < 3600 {
+            return "\(Int(timeInterval / 60)) min away"
+        } else if timeInterval < 86400 {
+            return "\(Int(timeInterval / 3600)) hr away"
+        } else {
+            return "\(Int(timeInterval / 86400)) day away"
+        }
+    }
+
+    /// Computes the total price dynamically based on the service type
+    var price: Double {
+        let distanceCost = service.costPerMile * estimatedDistance
+        let durationCost = service.costPerMinute * estimatedDuration
+        let totalCost = (service.baseFare + distanceCost + durationCost) 
+        return totalCost
+    }
+
+    /// Retrieves the service name
+    var serviceTitle: String {
+        service.title
+    }
+
+    /// Retrieves the passenger capacity
+    var passengerCapacity: Int {
+        service.passengers
+    }
 }
+
+
 
 enum ServiceOption: Int, Identifiable, CaseIterable, Codable {
     case comfort = 1
     case uberX = 2
     case uberXL = 3
     case blackSUV = 4
-    
+
     var id: Self { self }
-    
+
     var title: String {
         switch self {
-            case .comfort:
-                return "Comfort"
-            case .uberX:
-                return "Uber X"
-            case .uberXL:
-                return "Uber XL"
-            case .blackSUV:
-                return "Black SUV"
+            case .comfort: return "Comfort"
+            case .uberX: return "Uber X"
+            case .uberXL: return "Uber XL"
+            case .blackSUV: return "Black SUV"
+        }
+    }
+
+    var passengers: Int {
+        switch self {
+            case .comfort, .uberX: return 4
+            case .uberXL, .blackSUV: return 6
+        }
+    }
+
+    var baseFare: Double {
+        switch self {
+            case .comfort: return 3.50
+            case .uberX: return 3.00
+            case .uberXL: return 4.50
+            case .blackSUV: return 7.00
+        }
+    }
+
+    var costPerMile: Double {
+        switch self {
+            case .comfort: return 1.75
+            case .uberX: return 1.50
+            case .uberXL: return 2.00
+            case .blackSUV: return 3.50
+        }
+    }
+
+    var costPerMinute: Double {
+        switch self {
+            case .comfort: return 0.30
+            case .uberX: return 0.25
+            case .uberXL: return 0.40
+            case .blackSUV: return 0.60
         }
     }
 }
+
 
 struct Driver: Codable, Identifiable {
     let userId: UUID

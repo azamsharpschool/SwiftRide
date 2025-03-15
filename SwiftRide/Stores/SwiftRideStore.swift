@@ -10,8 +10,6 @@ import Observation
 import Supabase
 import MapKit
 
-
-
 @Observable
 class SwiftRideStore {
     
@@ -45,7 +43,6 @@ class SwiftRideStore {
         }
     }
    
-    
     func login(email: String, password: String) async throws {
         try await client.auth.signIn(email: email, password: password)
     }
@@ -79,6 +76,8 @@ class SwiftRideStore {
             .rpc("nearby_drivers", params: ["lat": coordinate.latitude, "long": coordinate.longitude])
             .execute()
             .value
+        
+        print(nearbyDrivers)
     }
     /*
     func startListeningForNearbyDrivers() async throws {
@@ -113,6 +112,22 @@ class SwiftRideStore {
         
     }
     
+    func getRideOptions() -> [RideOption] {
+        
+        guard !nearbyDrivers.isEmpty else { return [] }
+        
+        // service options
+        // use set to remove the duplicates
+        let nearbyServiceOptions = nearbyDrivers.map { $0.serviceOption }
+        
+       // nearbyServiceOptions.map {
+           
+       // }
+        
+        return []
+    }
+    
+    /*
     // options are based on what is around you...
     func getRideOptions() -> [RideOption] {
         [
@@ -121,5 +136,5 @@ class SwiftRideStore {
            RideOption(name: "UberXL", passengers: 6, price: "$40.37", discountedPrice: nil, arrivalTime: "11:47 PM", timeAway: "6 min away", description: "Affordable rides for groups up to 6", imageName: "bus.fill", isSelected: false),
            RideOption(name: "Black SUV", passengers: 6, price: "$77.86", discountedPrice: nil, arrivalTime: "11:51 PM", timeAway: "7 min away", description: "Luxury rides for 6 with professional drivers", imageName: "suv.fill", isSelected: false)
        ]
-    }
+    } */
 }

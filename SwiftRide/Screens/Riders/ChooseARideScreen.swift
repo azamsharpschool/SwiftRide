@@ -6,13 +6,6 @@ struct ChooseARideScreen: View {
     @Environment(SwiftRideStore.self) private var swiftRideStore 
     
 
-    let rideOptions: [RideOption] = [
-        RideOption(name: "Comfort", passengers: 4, price: "$32.06", discountedPrice: nil, arrivalTime: "11:57 PM", timeAway: "11 min away", description: "Newer cars with extra legroom", imageName: "car.fill", isSelected: true),
-        RideOption(name: "UberX", passengers: 4, price: "$31.28", discountedPrice: "$25.93", arrivalTime: "11:56 PM", timeAway: "12 min away", description: "Affordable rides all to yourself", imageName: "car.fill", isSelected: false),
-        RideOption(name: "UberXL", passengers: 6, price: "$40.37", discountedPrice: nil, arrivalTime: "11:47 PM", timeAway: "6 min away", description: "Affordable rides for groups up to 6", imageName: "bus.fill", isSelected: false),
-        RideOption(name: "Black SUV", passengers: 6, price: "$77.86", discountedPrice: nil, arrivalTime: "11:51 PM", timeAway: "7 min away", description: "Luxury rides for 6 with professional drivers", imageName: "suv.fill", isSelected: false)
-    ]
-
     var body: some View {
         VStack {
             Text("Choose a ride")
@@ -20,7 +13,11 @@ struct ChooseARideScreen: View {
                 .fontWeight(.semibold)
                 .padding(.top)
             
+            RideOptionListView(rideOptions: swiftRideStore.getRideOptions())
+            
+            /*
             List {
+                
                 ForEach(rideOptions) { ride in
                     RideOptionRow(ride: ride, isSelected: selectedRide?.id == ride.id)
                         .onTapGesture {
@@ -29,8 +26,10 @@ struct ChooseARideScreen: View {
                 }
             }
             .listStyle(.plain)
+             */
             
             // Payment Selection & Confirm Button
+            /*
             VStack(spacing: 10) {
                
                 Button(action: {
@@ -48,6 +47,8 @@ struct ChooseARideScreen: View {
                 .disabled(selectedRide == nil)
             }
             .background(Color.black.opacity(0.05))
+            */
+            
         }
         .background(Color.black.opacity(0.05).ignoresSafeArea())
     }
@@ -68,10 +69,10 @@ struct RideOptionRow: View {
 
             VStack(alignment: .leading) {
                 HStack {
-                    Text(ride.name)
-                        .fontWeight(.bold)
+                   // Text(ride.name)
+                     //   .fontWeight(.bold)
                     Image(systemName: "person.fill")
-                    Text("\(ride.passengers)")
+                   // Text("\(ride.passengers)")
                 }
                 Text("\(ride.arrivalTime) • \(ride.timeAway)")
                     .font(.subheadline)
@@ -83,6 +84,7 @@ struct RideOptionRow: View {
             
             Spacer()
             
+            /*
             VStack(alignment: .trailing) {
                 if let discount = ride.discountedPrice {
                     Text(discount)
@@ -95,7 +97,7 @@ struct RideOptionRow: View {
                     Text(ride.price)
                         .fontWeight(.bold)
                 }
-            }
+            } */
         }
         .padding()
         .background(isSelected ? Color.white.opacity(0.2) : Color.clear)
