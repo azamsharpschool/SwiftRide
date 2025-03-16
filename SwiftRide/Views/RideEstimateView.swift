@@ -20,17 +20,22 @@ struct RideEstimateView: View {
                 .frame(width: 50, height: 50)
                 .background(Color.gray.opacity(0.3))
                 .clipShape(Circle())
-
+            
             VStack(alignment: .leading) {
                 HStack {
                     Text(rideEstimate.title)
                         .fontWeight(.bold)
                     Image(systemName: "person.fill")
                     Text("\(rideEstimate.passengerCapacity)")
+                    Spacer()
+                    Text(rideEstimate.estimatedFare, format: .currency(code: "USD"))
+                        .font(.title)
+                        
                 }
                 Text("Arrival Time")
                     .font(.subheadline)
                     .foregroundColor(.gray)
+               
                 HStack {
                     Text(rideEstimate.description)
                         .font(.footnote)

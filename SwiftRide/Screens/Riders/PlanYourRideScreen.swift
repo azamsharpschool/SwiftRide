@@ -141,9 +141,9 @@ struct PlanYourRideScreen: View {
             do {
                 
                 guard let userLocation = locationManager.userLocation else { return }
-                let userCoordinate = userLocation.coordinate
                 
-                try await swiftRideStore.loadRideEstimates(coordinate: userCoordinate)
+                try await swiftRideStore.loadRideEstimates(from: userLocation, to: .apple)
+                
                 //try await swiftRideStore.startListeningForNearbyDrivers()
             } catch {
                 print(error.localizedDescription)

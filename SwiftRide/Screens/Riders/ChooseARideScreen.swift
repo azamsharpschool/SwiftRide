@@ -49,7 +49,7 @@ struct ChooseARideScreen: View {
             }
         })
         .task {
-            try! await swiftRideStore.loadRideEstimates(coordinate:.apple)
+            try! await swiftRideStore.loadRideEstimates(from: .apple, to: .apple)
         }
         .background(Color.black.opacity(0.05).ignoresSafeArea())
     }

@@ -19,7 +19,7 @@ struct PreviewData {
         ]
         
         return drivers.map {
-            RideEstimate(driver: $0)
+            RideEstimate(userLocation: .apple, destinationLocation: .apple, driver: $0)
         }
     }()
 

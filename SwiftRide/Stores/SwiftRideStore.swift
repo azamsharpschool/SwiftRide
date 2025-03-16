@@ -73,16 +73,15 @@ class SwiftRideStore: SwiftRideStoreProtocol {
             .execute()
     }
     
-    func loadRideEstimates(coordinate: CLLocationCoordinate2D) async throws {
+    func loadRideEstimates(from userLocation: CLLocation, to destinationLocation: CLLocation)
+ async throws {
         
         let nearbyDrivers: [Driver] = try await client
-            .rpc("nearby_drivers", params: ["lat": coordinate.latitude, "long": coordinate.longitude])
+         .rpc("nearby_drivers", params: ["lat": userLocation.coordinate.latitude, "long": userLocation.coordinate.longitude])
             .execute()
             .value
         
-        rideEstimates = nearbyDrivers.map { RideEstimate(driver: $0) }
-        
-        //return nearbyDrivers.map { RideEstimate(driver: $0) }
+     rideEstimates = nearbyDrivers.map { RideEstimate(userLocation: userLocation, destinationLocation: destinationLocation, driver: $0) }
     }
     /*
     func startListeningForNearbyDrivers() async throws {
