@@ -9,35 +9,19 @@ import Foundation
 
 struct PreviewData {
     
-    static let rideOptions: [RideOption] = [
-        RideOption(service: .comfort,
-                   estimatedDistance: 8.0,
-                   estimatedDuration: 15.0,
-                   arrivalTime: Date().addingTimeInterval(600),
-                   description: "Newer cars with extra legroom",
-                   imageName: "car.fill"),
-
-        RideOption(service: .uberX,
-                   estimatedDistance: 10.0,
-                   estimatedDuration: 20.0,
-                   arrivalTime: Date().addingTimeInterval(900),
-                   description: "Affordable rides all to yourself",
-                   imageName: "car.fill"),
-
-        RideOption(service: .uberXL,
-                   estimatedDistance: 12.0,
-                   estimatedDuration: 25.0,
-                   arrivalTime: Date().addingTimeInterval(1200),
-                   description: "Affordable rides for groups up to 6",
-                   imageName: "bus.fill"),
-
-        RideOption(service: .blackSUV,
-                   estimatedDistance: 15.0,
-                   estimatedDuration: 30.0,
-                   arrivalTime: Date().addingTimeInterval(1500),
-                   description: "Luxury rides for 6 with professional drivers",
-                   imageName: "suv.fill")
-    ]
+    static let rideEstimates: [RideEstimate] = {
+        
+        // Creating an array of drivers
+        let drivers: [Driver] = [
+            Driver(userId: UUID(), licensePlate: "ABC123", make: "Toyota", model: "Camry", rating: 5, isOnline: true, latitude: 37.7749, longitude: -122.4194, distance: 1.2, serviceOption: .uberX),
+            Driver(userId: UUID(), licensePlate: "XYZ789", make: "Honda", model: "Civic", rating: 4, isOnline: true, latitude: 40.7128, longitude: -74.0060, distance: 2.5, serviceOption: .uberXL),
+            Driver(userId: UUID(), licensePlate: "LMN456", make: "Tesla", model: "Model 3", rating: 5, isOnline: false, latitude: 34.0522, longitude: -118.2437, distance: nil, serviceOption: .blackSUV)
+        ]
+        
+        return drivers.map {
+            RideEstimate(driver: $0)
+        }
+    }()
 
     
 }

@@ -112,29 +112,12 @@ class SwiftRideStore {
         
     }
     
-    func getRideOptions() -> [RideOption] {
+    func getRideEstimates() -> [RideEstimate] {
         
         guard !nearbyDrivers.isEmpty else { return [] }
         
-        // service options
-        // use set to remove the duplicates
-        let nearbyServiceOptions = nearbyDrivers.map { $0.serviceOption }
-        
-       // nearbyServiceOptions.map {
-           
-       // }
-        
-        return []
+        return nearbyDrivers.map {
+            RideEstimate(driver: $0)
+        }
     }
-    
-    /*
-    // options are based on what is around you...
-    func getRideOptions() -> [RideOption] {
-        [
-           RideOption(name: "Comfort", passengers: 4, price: "$32.06", discountedPrice: nil, arrivalTime: "11:57 PM", timeAway: "11 min away", description: "Newer cars with extra legroom", imageName: "car.fill", isSelected: true),
-           RideOption(name: "UberX", passengers: 4, price: "$31.28", discountedPrice: "$25.93", arrivalTime: "11:56 PM", timeAway: "12 min away", description: "Affordable rides all to yourself", imageName: "car.fill", isSelected: false),
-           RideOption(name: "UberXL", passengers: 6, price: "$40.37", discountedPrice: nil, arrivalTime: "11:47 PM", timeAway: "6 min away", description: "Affordable rides for groups up to 6", imageName: "bus.fill", isSelected: false),
-           RideOption(name: "Black SUV", passengers: 6, price: "$77.86", discountedPrice: nil, arrivalTime: "11:51 PM", timeAway: "7 min away", description: "Luxury rides for 6 with professional drivers", imageName: "suv.fill", isSelected: false)
-       ]
-    } */
 }

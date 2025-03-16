@@ -41,50 +41,20 @@ enum Role: Int, Identifiable, CaseIterable {
     }
 }
 
-struct RideOption: Identifiable {
+struct RideEstimate: Identifiable {
+    
     let id = UUID()
-    let service: ServiceOption
-    let estimatedDistance: Double // in miles
-    let estimatedDuration: Double // in minutes
-    let arrivalTime: Date
-    let description: String
-    let imageName: String
-
-    /// Computed property to display time until arrival dynamically
-    var timeAway: String {
-        let timeInterval = arrivalTime.timeIntervalSinceNow
-
-        if timeInterval <= 0 {
-            return "Arriving now"
-        } else if timeInterval < 3600 {
-            return "\(Int(timeInterval / 60)) min away"
-        } else if timeInterval < 86400 {
-            return "\(Int(timeInterval / 3600)) hr away"
-        } else {
-            return "\(Int(timeInterval / 86400)) day away"
-        }
+    let driver: Driver
+    
+    var title: String {
+        driver.serviceOption.title
     }
-
-    /// Computes the total price dynamically based on the service type
-    var price: Double {
-        let distanceCost = service.costPerMile * estimatedDistance
-        let durationCost = service.costPerMinute * estimatedDuration
-        let totalCost = (service.baseFare + distanceCost + durationCost) 
-        return totalCost
-    }
-
-    /// Retrieves the service name
-    var serviceTitle: String {
-        service.title
-    }
-
-    /// Retrieves the passenger capacity
+    
     var passengerCapacity: Int {
-        service.passengers
+        driver.serviceOption.passengers
     }
+    
 }
-
-
 
 enum ServiceOption: Int, Identifiable, CaseIterable, Codable {
     case comfort = 1

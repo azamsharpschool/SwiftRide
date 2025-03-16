@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ChooseARideScreen: View {
     
-    @State private var selectedRide: RideOption?
+    @State private var selectedRide: RideEstimate?
     @Environment(SwiftRideStore.self) private var swiftRideStore 
     
 
@@ -13,7 +13,7 @@ struct ChooseARideScreen: View {
                 .fontWeight(.semibold)
                 .padding(.top)
             
-            RideOptionListView(rideOptions: swiftRideStore.getRideOptions())
+            RideEstimateListView(rideEstimates: swiftRideStore.getRideEstimates())
             
             /*
             List {
@@ -55,12 +55,12 @@ struct ChooseARideScreen: View {
 }
 
 struct RideOptionRow: View {
-    let ride: RideOption
+    let ride: RideEstimate
     let isSelected: Bool
     
     var body: some View {
         HStack {
-            Image(systemName: ride.imageName)
+            Image(systemName: "")
                 .font(.title)
                 .foregroundColor(.white)
                 .frame(width: 50, height: 50)
@@ -74,10 +74,10 @@ struct RideOptionRow: View {
                     Image(systemName: "person.fill")
                    // Text("\(ride.passengers)")
                 }
-                Text("\(ride.arrivalTime) • \(ride.timeAway)")
+                Text("Arrival Time")
                     .font(.subheadline)
                     .foregroundColor(.gray)
-                Text(ride.description)
+                Text("Ride description")
                     .font(.footnote)
                     .foregroundColor(.gray)
             }
