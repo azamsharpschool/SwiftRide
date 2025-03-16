@@ -3,9 +3,9 @@ import SwiftUI
 struct ChooseARideScreen: View {
     
     @State private var selectedRide: RideEstimate?
-    @Environment(SwiftRideStore.self) private var swiftRideStore 
+    @Environment(SwiftRideStore.self) private var swiftRideStore
+    @State private var selectedServiceOption: ServiceOption?
     
-
     var body: some View {
         VStack {
             Text("Choose a ride")
@@ -13,29 +13,24 @@ struct ChooseARideScreen: View {
                 .fontWeight(.semibold)
                 .padding(.top)
             
-            RideEstimateListView(rideEstimates: swiftRideStore.getRideEstimates())
-            
-            /*
-            List {
-                
-                ForEach(rideOptions) { ride in
-                    RideOptionRow(ride: ride, isSelected: selectedRide?.id == ride.id)
-                        .onTapGesture {
-                            selectedRide = ride
-                        }
-                }
+            List(swiftRideStore.rideEstimates) { rideEstimate in
+                RideEstimateView(rideEstimate: rideEstimate, onInfoSelected: {
+                        selectedServiceOption = rideEstimate.serviceOption
+                    })
+                    .onTapGesture {
+                        print("onTapGesture")
+                        selectedRide = rideEstimate
+                    }
+                    .background(selectedRide == rideEstimate ? Color.blue.opacity(0.2) : Color.clear)
+                            .cornerRadius(10)
             }
-            .listStyle(.plain)
-             */
             
-            // Payment Selection & Confirm Button
-            /*
             VStack(spacing: 10) {
                
                 Button(action: {
-                    print("Selected Ride: \(selectedRide?.name ?? "None")")
+                    print("Selected Ride:)")
                 }) {
-                    Text("Choose \(selectedRide?.name ?? "a ride")")
+                    Text("Choose \(selectedRide?.title ?? "a ride")")
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(selectedRide != nil ? Color.blue.opacity(0.8) : Color.gray.opacity(0.4))
@@ -47,61 +42,16 @@ struct ChooseARideScreen: View {
                 .disabled(selectedRide == nil)
             }
             .background(Color.black.opacity(0.05))
-            */
-            
+        }
+        .sheet(item: $selectedServiceOption, content: { selectedServiceOption in
+            NavigationStack {
+                FarebreakdownScreen(serviceOption: selectedServiceOption)
+            }
+        })
+        .task {
+            try! await swiftRideStore.loadRideEstimates(coordinate:.apple)
         }
         .background(Color.black.opacity(0.05).ignoresSafeArea())
-    }
-}
-
-struct RideOptionRow: View {
-    let ride: RideEstimate
-    let isSelected: Bool
-    
-    var body: some View {
-        HStack {
-            Image(systemName: "")
-                .font(.title)
-                .foregroundColor(.white)
-                .frame(width: 50, height: 50)
-                .background(Color.gray.opacity(0.3))
-                .clipShape(Circle())
-
-            VStack(alignment: .leading) {
-                HStack {
-                   // Text(ride.name)
-                     //   .fontWeight(.bold)
-                    Image(systemName: "person.fill")
-                   // Text("\(ride.passengers)")
-                }
-                Text("Arrival Time")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                Text("Ride description")
-                    .font(.footnote)
-                    .foregroundColor(.gray)
-            }
-            
-            Spacer()
-            
-            /*
-            VStack(alignment: .trailing) {
-                if let discount = ride.discountedPrice {
-                    Text(discount)
-                        .foregroundColor(.green)
-                    Text(ride.price)
-                        .strikethrough()
-                        .foregroundColor(.gray)
-                        .font(.footnote)
-                } else {
-                    Text(ride.price)
-                        .fontWeight(.bold)
-                }
-            } */
-        }
-        .padding()
-        .background(isSelected ? Color.white.opacity(0.2) : Color.clear)
-        .cornerRadius(10)
     }
 }
 

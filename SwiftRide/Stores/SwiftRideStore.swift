@@ -10,11 +10,18 @@ import Observation
 import Supabase
 import MapKit
 
+protocol SwiftRideStoreProtocol {
+    
+}
+
+
 @Observable
-class SwiftRideStore {
+class SwiftRideStore: SwiftRideStoreProtocol {
     
     private var client: SupabaseClient
-    var nearbyDrivers: [Driver] = []
+    var rideEstimates: [RideEstimate] = []
+    
+    //var nearbyDrivers: [Driver] = []
     
     init(client: SupabaseClient) {
         self.client = client
@@ -24,6 +31,10 @@ class SwiftRideStore {
         get async throws {
             return try await client.auth.user()
         }
+    }
+    
+    var nearbyDrivers: [Driver] {
+        rideEstimates.map { $0.driver }
     }
     
     func register(userRegistration: UserRegistration) async throws {
@@ -62,22 +73,16 @@ class SwiftRideStore {
             .execute()
     }
     
-    func loadNearbyDriversBy(coordinate: CLLocationCoordinate2D) async throws {
+    func loadRideEstimates(coordinate: CLLocationCoordinate2D) async throws {
         
-        let data = try await client
-           .rpc("nearby_drivers", params: ["lat": coordinate.latitude, "long": coordinate.longitude])
-           .execute()
-           .data
-        
-        let dataAsString = String(data: data, encoding: .utf8)
-        print(dataAsString)
-        
-        nearbyDrivers = try await client
+        let nearbyDrivers: [Driver] = try await client
             .rpc("nearby_drivers", params: ["lat": coordinate.latitude, "long": coordinate.longitude])
             .execute()
             .value
         
-        print(nearbyDrivers)
+        rideEstimates = nearbyDrivers.map { RideEstimate(driver: $0) }
+        
+        //return nearbyDrivers.map { RideEstimate(driver: $0) }
     }
     /*
     func startListeningForNearbyDrivers() async throws {
@@ -110,14 +115,5 @@ class SwiftRideStore {
     
     func stopListeningForNearbyDrivers() {
         
-    }
-    
-    func getRideEstimates() -> [RideEstimate] {
-        
-        guard !nearbyDrivers.isEmpty else { return [] }
-        
-        return nearbyDrivers.map {
-            RideEstimate(driver: $0)
-        }
     }
 }

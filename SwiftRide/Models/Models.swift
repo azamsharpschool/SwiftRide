@@ -41,7 +41,7 @@ enum Role: Int, Identifiable, CaseIterable {
     }
 }
 
-struct RideEstimate: Identifiable {
+struct RideEstimate: Identifiable, Equatable {
     
     let id = UUID()
     let driver: Driver
@@ -50,8 +50,30 @@ struct RideEstimate: Identifiable {
         driver.serviceOption.title
     }
     
+    var icon: String {
+        driver.serviceOption.icon
+    }
+    
+    var description: String {
+        driver.serviceOption.description
+    }
+    
+    var serviceOption: ServiceOption {
+        driver.serviceOption 
+    }
+    
     var passengerCapacity: Int {
         driver.serviceOption.passengers
+    }
+    
+    /*
+    var estimatedFare: Double {
+            let service = driver.serviceOption
+            return service.baseFare + (service.costPerMile * estimatedDistance) + (service.costPerMinute * estimatedTime)
+    } */
+    
+    static func == (lhs: RideEstimate, rhs: RideEstimate) -> Bool {
+            return lhs.id == rhs.id
     }
     
 }
@@ -70,6 +92,24 @@ enum ServiceOption: Int, Identifiable, CaseIterable, Codable {
             case .uberX: return "Uber X"
             case .uberXL: return "Uber XL"
             case .blackSUV: return "Black SUV"
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .comfort: return "A more spacious and comfortable ride with better vehicles."
+        case .uberX: return "Affordable everyday rides with standard cars."
+        case .uberXL: return "Larger vehicles for up to 6 passengers."
+        case .blackSUV: return "Luxury SUVs for premium rides and larger groups."
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .comfort: return "car.fill"         // SF Symbol for a generic car
+        case .uberX: return "car.fill"               // Another SF Symbol variant
+        case .uberXL: return "car.fill"         // Resembles a larger vehicle
+        case .blackSUV: return "suv.side.fill"
         }
     }
 

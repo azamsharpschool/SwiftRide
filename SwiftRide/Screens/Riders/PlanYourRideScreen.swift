@@ -124,7 +124,7 @@ struct PlanYourRideScreen: View {
                         ChooseARideScreen()
                 }
             }
-            .presentationDetents([.fraction(0.25), .medium, .large])
+            .presentationDetents([.medium, .large])
             .presentationBackgroundInteraction(
                 .enabled(upThrough: .medium)
             )
@@ -143,7 +143,7 @@ struct PlanYourRideScreen: View {
                 guard let userLocation = locationManager.userLocation else { return }
                 let userCoordinate = userLocation.coordinate
                 
-                try await swiftRideStore.loadNearbyDriversBy(coordinate: userCoordinate)
+                try await swiftRideStore.loadRideEstimates(coordinate: userCoordinate)
                 //try await swiftRideStore.startListeningForNearbyDrivers()
             } catch {
                 print(error.localizedDescription)
