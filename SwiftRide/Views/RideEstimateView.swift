@@ -28,8 +28,12 @@ struct RideEstimateView: View {
                     Image(systemName: "person.fill")
                     Text("\(rideEstimate.passengerCapacity)")
                     Spacer()
-                    Text(rideEstimate.estimatedFare, format: .currency(code: "USD"))
-                        .font(.title)
+                    Text(rideEstimate.estimatedFare, format: .currency(code: Locale.current.currencyIdentifier))
+                        .font(.title3)
+                        .padding(6)
+                        .background(.green)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 16.0, style: .continuous))
                         
                 }
                 Text("Arrival Time")

@@ -9,12 +9,12 @@ import SwiftUI
 
 struct FarebreakdownScreen: View {
     
-    @Environment(\.dismiss) private var dismiss 
+    @Environment(\.dismiss) private var dismiss
     let serviceOption: ServiceOption
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Subtitle
+            
             Text("Your fare will be the price presented before the trip or based on the rates below and other applicable surcharges and adjustments.")
                 .font(.subheadline)
                 .foregroundColor(.gray)

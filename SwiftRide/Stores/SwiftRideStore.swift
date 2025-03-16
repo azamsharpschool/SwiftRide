@@ -10,18 +10,11 @@ import Observation
 import Supabase
 import MapKit
 
-protocol SwiftRideStoreProtocol {
-    
-}
-
-
 @Observable
-class SwiftRideStore: SwiftRideStoreProtocol {
+class SwiftRideStore {
     
     private var client: SupabaseClient
     var rideEstimates: [RideEstimate] = []
-    
-    //var nearbyDrivers: [Driver] = []
     
     init(client: SupabaseClient) {
         self.client = client

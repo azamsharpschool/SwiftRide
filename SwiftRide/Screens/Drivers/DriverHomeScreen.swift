@@ -44,8 +44,8 @@ struct DriverHomeScreen: View {
         
         do {
             let user = try await swiftRideStore.currentUser
-            //let coordinate = generateRandomCoordinatesNearApplePark()
-            let coordinate = userLocation.coordinate
+            let coordinate = generateRandomCoordinatesNearApplePark()
+            //let coordinate = userLocation.coordinate
             try await swiftRideStore.updateDriverStatus(userId: user.id, isOnline: isOnline, latitude: coordinate.latitude, longitude: coordinate.longitude)
             
         } catch {
