@@ -5,12 +5,15 @@ struct LoginScreen: View {
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var showRegistrationScreen: Bool = false
+    @State private var loggingIn: Bool = false
     
     @Environment(SwiftRideStore.self) private var swiftRideStore
     
     private func login() async {
         do {
+            loggingIn = true
             try await swiftRideStore.login(email: email, password: password)
+            loggingIn = false
         } catch {
             print(error.localizedDescription)
         }
@@ -81,6 +84,11 @@ struct LoginScreen: View {
                 
                 Spacer()
             }
+            .overlay(alignment: .center, content: {
+                if loggingIn {
+                    ProgressView("Logging In...")
+                }
+            })
             .padding()
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Login")

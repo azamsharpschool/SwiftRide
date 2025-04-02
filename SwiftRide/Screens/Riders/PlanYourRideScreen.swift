@@ -86,6 +86,7 @@ struct PlanYourRideScreen: View {
             Map(position: $locationManager.cameraPosition) {
                 UserAnnotation()
                 ForEach(swiftRideStore.nearbyDrivers) { driver in
+                    
                     Annotation("Driver", coordinate: driver.coordinate) {
                         Image(systemName: "car.fill") // Use a car icon
                             .foregroundColor(.blue)
@@ -124,6 +125,9 @@ struct PlanYourRideScreen: View {
                 }
             }
             .presentationDetents([.medium, .large])
+            .presentationBackgroundInteraction(
+                .enabled(upThrough: .medium)
+            )
             .interactiveDismissDisabled()
             
         })
@@ -137,9 +141,9 @@ struct PlanYourRideScreen: View {
             do {
                 
                 guard let userLocation = locationManager.userLocation else { return }
-                let userCoordinate = userLocation.coordinate
                 
-                try await swiftRideStore.loadNearbyDriversBy(latitude: userCoordinate.latitude, longitude: userCoordinate.longitude)
+                try await swiftRideStore.loadRideEstimates(from: userLocation, to: .apple)
+                
                 //try await swiftRideStore.startListeningForNearbyDrivers()
             } catch {
                 print(error.localizedDescription)
