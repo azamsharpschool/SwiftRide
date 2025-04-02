@@ -1,10 +1,3 @@
-//
-//  LoginScreen.swift
-//  SwiftRide
-//
-//  Created by Mohammad Azam on 3/4/25.
-//
-
 import SwiftUI
 
 struct LoginScreen: View {
@@ -25,70 +18,76 @@ struct LoginScreen: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
+            VStack(spacing: 24) {
+                
+                Spacer(minLength: 40)
                 
                 Image("logo")
                     .resizable()
+                    .scaledToFit()
                     .frame(width: 100, height: 100)
-                    .clipShape(RoundedRectangle(cornerRadius: 20.0, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 
-                Text("Get moving with SwiftRide. Sign in to continue.")
+                Text("Get moving with SwiftRide.\nSign in to continue.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+                    .padding(.horizontal, 32)
                 
-                Form {
-                    Section {
-                        TextField("Email", text: $email)
-                            .textContentType(.emailAddress)
-                            .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                            .padding(10)
-                            .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.5)))
-                        
-                        SecureField("Password", text: $password)
-                            .textContentType(.password)
-                            .padding(10)
-                            .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.5)))
-                    }
+                VStack(spacing: 16) {
+                    TextField("Email", text: $email)
+                        .textContentType(.emailAddress)
+                        .keyboardType(.emailAddress)
+                        .autocapitalization(.none)
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.3)))
                     
-                    Section {
-                        Button(action: {
-                            Task { await login() }
-                        }) {
-                            Text("Login")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        
-                        Button(action: {
-                            showRegistrationScreen = true
-                        }) {
-                            Text("Register")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-                        
-                        Button(action: {
-                            // Forgot password action
-                        }) {
-                            Text("Forgot Password?")
-                                .font(.footnote)
-                                .foregroundColor(.blue)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .center)
+                    SecureField("Password", text: $password)
+                        .textContentType(.password)
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.3)))
+                }
+                .padding(.horizontal)
+                
+                VStack(spacing: 12) {
+                    Button(action: {
+                        Task { await login() }
+                    }) {
+                        Text("Login")
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.borderedProminent)
+                    
+                    Button(action: {
+                        showRegistrationScreen = true
+                    }) {
+                        Text("Register")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    
+                    Button("Forgot Password?") {
+                        // Forgot password action
+                    }
+                    .font(.footnote)
+                    .foregroundColor(.blue)
+                    .padding(.top, 8)
                 }
-                .scrollContentBackground(.hidden)
-                .background(Color(.systemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding()
-                .sheet(isPresented: $showRegistrationScreen) {
-                    RegisterScreen()
-                }
+                .padding(.horizontal)
+                
+                Spacer()
             }
             .padding()
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Login")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showRegistrationScreen) {
+                RegisterScreen()
+            }
         }
     }
 }
