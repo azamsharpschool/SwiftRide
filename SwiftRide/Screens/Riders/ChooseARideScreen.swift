@@ -2,9 +2,11 @@ import SwiftUI
 
 struct ChooseARideScreen: View {
     
+    let trip: Trip
     @State private var selectedRide: RideEstimate?
     @Environment(SwiftRideStore.self) private var swiftRideStore
     @State private var selectedServiceOption: ServiceOption?
+    @State private var loadingRideEstimates: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -50,6 +52,11 @@ struct ChooseARideScreen: View {
                 .padding(.horizontal)
                 .padding(.bottom, 24)
             }
+            .overlay(alignment: .center, content: {
+                if loadingRideEstimates {
+                    LoadingView(message: "Loading ride estimates...") 
+                }
+            })
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
             .sheet(item: $selectedServiceOption) { option in
                 NavigationStack {
@@ -57,13 +64,25 @@ struct ChooseARideScreen: View {
                 }
             }
             .task {
-                try? await swiftRideStore.loadRideEstimates(from: .apple, to: .apple)
+                
+                do {
+                    
+                    loadingRideEstimates = true
+                    defer { loadingRideEstimates = false }
+                    
+                    guard let pickupLocation = await trip.getPickupLocation(),
+                          let destinationLocation = await trip.getDestinationLocation() else { return }
+                    
+                    try await swiftRideStore.loadRideEstimates(from: pickupLocation, to: destinationLocation)
+                } catch {
+                    print("Failed to load ride estimates: \(error.localizedDescription)")
+                }
             }
         }
     }
 }
 
 #Preview {
-    ChooseARideScreen()
+    ChooseARideScreen(trip: Trip(pickup: "Apple Park", destination: "Ortega Park"))
         .environment(SwiftRideStore(client: .development))
 }

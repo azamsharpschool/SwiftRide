@@ -34,10 +34,7 @@ struct RideEstimateView: View {
                         .background(.green)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 16.0, style: .continuous))
-                   
-                        
                 }
-               
                
                 HStack {
                     Text(rideEstimate.description)
@@ -49,9 +46,9 @@ struct RideEstimateView: View {
                 }
                 
                 HStack {
-                    Text(rideEstimate.estimatedArrival.formatted(date: .omitted, time: .shortened))
+                    Text(rideEstimate.estimatedArrivalToDestination.formatted(date: .omitted, time: .shortened))
                         .foregroundColor(.gray)
-                    Text("Arriving in ^[\(Int(round(rideEstimate.estimatedArrivalTimeInMinutes))) minutes](inflect: true)")
+                    Text("Arriving in ^[\(Int(round(rideEstimate.estimatedDriverArrivalTimeInMinutes))) minutes](inflect: true)")
                 }.font(.caption)
               
             }

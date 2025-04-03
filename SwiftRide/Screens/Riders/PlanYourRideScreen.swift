@@ -110,8 +110,10 @@ struct PlanYourRideScreen: View {
                             PlaceListView(places: places) { place in
                                 switch activeField {
                                     case .pickup:
+                                        print(place.address)
                                         trip.pickup = place.address
                                     case .destination:
+                                        print(place.address)
                                         trip.destination = place.address
                                         activeSheet = .chooseARide
                                     default:
@@ -121,7 +123,7 @@ struct PlanYourRideScreen: View {
                         }
                        
                     case .chooseARide:
-                        ChooseARideScreen()
+                        ChooseARideScreen(trip: trip)
                 }
             }
             .presentationDetents([.medium, .large])
@@ -134,21 +136,21 @@ struct PlanYourRideScreen: View {
         .onAppear(perform: {
             locationManager.requestLocation()
         })
-       
         
+       
+        /*
         .task(id: locationManager.userLocation) {
             
             do {
                 
                 guard let userLocation = locationManager.userLocation else { return }
-                
-                try await swiftRideStore.loadRideEstimates(from: userLocation, to: .apple)
+                try await swiftRideStore.loadRideEstimates(from: userLocation, to: .sanJose)
                 
                 //try await swiftRideStore.startListeningForNearbyDrivers()
             } catch {
                 print(error.localizedDescription)
             }
-        }
+        } */
         
         .navigationTitle("Plan your ride")
         .navigationBarTitleDisplayMode(.inline)

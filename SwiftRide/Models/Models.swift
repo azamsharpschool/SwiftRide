@@ -22,6 +22,27 @@ struct Trip: Identifiable, Equatable {
     let id = UUID()
     var pickup: String = ""
     var destination: String = ""
+    
+    func getPickupLocation() async -> CLLocation? {
+        await Trip.getLocation(for: pickup)
+    }
+    
+    func getDestinationLocation() async -> CLLocation? {
+        await Trip.getLocation(for: destination)
+    }
+}
+
+extension Trip {
+    private static func getLocation(for address: String) async -> CLLocation? {
+        let geocoder = CLGeocoder()
+        do {
+            let placemarks = try await geocoder.geocodeAddressString(address)
+            return placemarks.first?.location
+        } catch {
+            print("Geocoding error for address '\(address)': \(error.localizedDescription)")
+            return nil
+        }
+    }
 }
 
 enum Role: Int, Identifiable, CaseIterable {
@@ -45,7 +66,7 @@ struct RideEstimate: Identifiable, Equatable {
     
     let id = UUID()
     
-    let userLocation: CLLocation
+    let pickupLocation: CLLocation
     let destinationLocation: CLLocation
     
     let driver: Driver
@@ -59,13 +80,8 @@ struct RideEstimate: Identifiable, Equatable {
     }
     
     var distanceInMeters: Double {
-        userLocation.distance(from: destinationLocation)
+        pickupLocation.distance(from: destinationLocation)
     }
-    
-    /*
-    var distanceInMiles: Double {
-        userLocation.distance(from: destinationLocation) * 0.000621371 // Convert meters to miles
-    } */
     
     var description: String {
         driver.serviceOption.description
@@ -76,9 +92,9 @@ struct RideEstimate: Identifiable, Equatable {
     }
     
     /// Estimated time for the driver to arrive in minutes, using consistent units
-    var estimatedArrivalTimeInMinutes: Double {
+    var estimatedDriverArrivalTimeInMinutes: Double {
         // CoreLocation's distance(from:) returns meters
-        let distanceToPassengerInMeters = driver.location.distance(from: userLocation)
+        let distanceToPassengerInMeters = driver.location.distance(from: pickupLocation)
         
         // Convert 20 mph to m/s (20 * 1609.34 meters/mile / 3600 seconds/hour)
         let averageApproachSpeedMetersPerSecond = 8.94 // 20 mph → 8.94 m/s
@@ -91,10 +107,11 @@ struct RideEstimate: Identifiable, Equatable {
         driver.serviceOption.passengers
     }
     
-    /// Estimated arrival time as a Date, calculated using meters and real-time speed
-    var estimatedArrival: Date {
+    var estimatedArrivalToDestination: Date {
+        
         // 1. Get distance in meters (CoreLocation uses meters)
-        let distanceInMeters = driver.location.distance(from: userLocation)
+        let distanceInMeters = pickupLocation.distance(from: destinationLocation)
+        print("distanceInMeters \(distanceInMeters)")
         
         // 2. Get current speed in m/s (convert from mph if needed)
         let currentSpeedMps: Double = 11.18
@@ -107,7 +124,7 @@ struct RideEstimate: Identifiable, Equatable {
     }
     
     /// Estimated trip duration in minutes (using meters as base unit)
-    var estimatedDuration: Double {
+    var estimatedDurationToDestinationInMinutes: Double {
         let averageSpeedMetersPerSecond = 11.18 // 25 mph converted to m/s (25 * 1609.34 / 3600)
         return (distanceInMeters / averageSpeedMetersPerSecond) / 60.0
     }
@@ -115,12 +132,9 @@ struct RideEstimate: Identifiable, Equatable {
     var estimatedFare: Double {
         let service = driver.serviceOption
         
-        // Convert service's cost-per-mile to cost-per-meter (if needed)
-        //let costPerMeter = service.costPerMile / 1609.34
-        
         let fare = service.baseFare
         + (service.costPerMeter * distanceInMeters)  // Now using meters
-                   + (service.costPerMinute * estimatedDuration)
+                   + (service.costPerMinute * estimatedDurationToDestinationInMinutes)
         
         return max(fare, service.minimumFare)
     }
