@@ -17,6 +17,8 @@ struct PlanYourRideScreen: View {
     
     @Environment(SwiftRideStore.self) private var swiftRideStore
     @Environment(LocationManager.self) private var locationManager
+    @Environment(\.routeService) private var routeService
+    @State private var route: MKRoute?
     
     @State private var trip = Trip()
     @State private var activeField: TripField?
@@ -95,6 +97,12 @@ struct PlanYourRideScreen: View {
                             .clipShape(Circle())
                     }
                 }
+                
+                if let route {
+                    MapPolyline(route)
+                        .stroke(.blue, lineWidth: 5)
+                }
+                
             }
             
         }
@@ -135,6 +143,20 @@ struct PlanYourRideScreen: View {
         })
         .onAppear(perform: {
             locationManager.requestLocation()
+        })
+        .task(id: trip, {
+            if !trip.pickup.isEmptyOrWhitespace && !trip.destination.isEmptyOrWhitespace {
+                
+                guard let pickupLocation = await trip.getPickupLocation(),
+                      let destinationLocation = await trip.getDestinationLocation() else { return }
+                
+                do {
+                    try await Task.sleep(nanoseconds: 300_000_000)
+                    route = await routeService.calculateRoute(from: pickupLocation, to: destinationLocation)
+                } catch {
+                    
+                }
+            }
         })
         
        
