@@ -29,16 +29,15 @@ struct RideEstimateView: View {
                     Text("\(rideEstimate.passengerCapacity)")
                     Spacer()
                     Text(rideEstimate.estimatedFare, format: .currency(code: Locale.current.currencyIdentifier))
-                        .font(.title3)
+                        .font(.body)
                         .padding(6)
                         .background(.green)
                         .foregroundStyle(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 16.0, style: .continuous))
+                   
                         
                 }
-                Text("Arrival Time")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+               
                
                 HStack {
                     Text(rideEstimate.description)
@@ -48,6 +47,12 @@ struct RideEstimateView: View {
                     Image(systemName: "info.circle.fill")
                         .onTapGesture(perform: onInfoSelected)
                 }
+                
+                HStack {
+                    Text(rideEstimate.estimatedArrival.formatted(date: .omitted, time: .shortened))
+                        .foregroundColor(.gray)
+                    Text("Arriving in ^[\(Int(round(rideEstimate.estimatedArrivalTimeInMinutes))) minutes](inflect: true)")
+                }.font(.caption)
               
             }
             

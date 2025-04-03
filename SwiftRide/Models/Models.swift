@@ -58,9 +58,14 @@ struct RideEstimate: Identifiable, Equatable {
         driver.serviceOption.icon
     }
     
+    var distanceInMeters: Double {
+        userLocation.distance(from: destinationLocation)
+    }
+    
+    /*
     var distanceInMiles: Double {
         userLocation.distance(from: destinationLocation) * 0.000621371 // Convert meters to miles
-    }
+    } */
     
     var description: String {
         driver.serviceOption.description
@@ -70,20 +75,54 @@ struct RideEstimate: Identifiable, Equatable {
         driver.serviceOption
     }
     
+    /// Estimated time for the driver to arrive in minutes, using consistent units
+    var estimatedArrivalTimeInMinutes: Double {
+        // CoreLocation's distance(from:) returns meters
+        let distanceToPassengerInMeters = driver.location.distance(from: userLocation)
+        
+        // Convert 20 mph to m/s (20 * 1609.34 meters/mile / 3600 seconds/hour)
+        let averageApproachSpeedMetersPerSecond = 8.94 // 20 mph → 8.94 m/s
+        
+        // Calculate time in seconds, then convert to minutes
+        return (distanceToPassengerInMeters / averageApproachSpeedMetersPerSecond) / 60.0
+    }
+    
     var passengerCapacity: Int {
         driver.serviceOption.passengers
     }
     
-    /// Estimated duration in **minutes**, assuming an average speed of 25 mph
+    /// Estimated arrival time as a Date, calculated using meters and real-time speed
+    var estimatedArrival: Date {
+        // 1. Get distance in meters (CoreLocation uses meters)
+        let distanceInMeters = driver.location.distance(from: userLocation)
+        
+        // 2. Get current speed in m/s (convert from mph if needed)
+        let currentSpeedMps: Double = 11.18
+        
+        // 3. Calculate time interval in seconds
+        let arrivalTimeInterval = distanceInMeters / currentSpeedMps
+        
+        // 4. Return future date
+        return Date().addingTimeInterval(arrivalTimeInterval)
+    }
+    
+    /// Estimated trip duration in minutes (using meters as base unit)
     var estimatedDuration: Double {
-        let averageSpeedMph = 25.0 // Assume an average city driving speed
-        return (distanceInMiles / averageSpeedMph) * 60.0
+        let averageSpeedMetersPerSecond = 11.18 // 25 mph converted to m/s (25 * 1609.34 / 3600)
+        return (distanceInMeters / averageSpeedMetersPerSecond) / 60.0
     }
     
     var estimatedFare: Double {
         let service = driver.serviceOption
-        let fare = service.baseFare + (service.costPerMile * distanceInMiles) + (service.costPerMinute * estimatedDuration)
-        return max(fare, service.minimumFare) // Ensure the fare is at least the minimum fare
+        
+        // Convert service's cost-per-mile to cost-per-meter (if needed)
+        //let costPerMeter = service.costPerMile / 1609.34
+        
+        let fare = service.baseFare
+        + (service.costPerMeter * distanceInMeters)  // Now using meters
+                   + (service.costPerMinute * estimatedDuration)
+        
+        return max(fare, service.minimumFare)
     }
     
     static func == (lhs: RideEstimate, rhs: RideEstimate) -> Bool {
@@ -152,6 +191,15 @@ enum ServiceOption: Int, Identifiable, CaseIterable, Codable {
         }
     }
     
+    var costPerMeter: Double {
+        switch self {
+            case .comfort: return 1.75 / 1609.34  // $1.75/mile → $0.001087/meter
+            case .uberX: return 1.50 / 1609.34    // $1.50/mile → $0.000932/meter
+            case .uberXL: return 2.00 / 1609.34   // $2.00/mile → $0.001243/meter
+            case .blackSUV: return 3.50 / 1609.34 // $3.50/mile → $0.002175/meter
+        }
+    }
+    
     var costPerMinute: Double {
         switch self {
         case .comfort: return 0.30
@@ -190,6 +238,10 @@ struct Driver: Codable, Identifiable {
     
     var coordinate: CLLocationCoordinate2D {
         CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+    
+    var location: CLLocation {
+        CLLocation(latitude: latitude, longitude: longitude)
     }
     
     private enum CodingKeys: String, CodingKey {
