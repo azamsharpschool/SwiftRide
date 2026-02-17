@@ -3,11 +3,22 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const models = require('../models')
 const { Op } = require('sequelize')
+const { validationResult } = require('express-validator')
+const constants = require('../config/constants')
 
 const RIDER_ROLE_ID = 1
 const DRIVER_ROLE_ID = 2
 
 exports.register = async (req, res) => {
+
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            message: errors.array().map(e => e.msg).join(', ')
+        });
+    }
 
     try {
 
@@ -38,7 +49,7 @@ exports.register = async (req, res) => {
             }, { transaction: t })
 
             // check if the user is a driver 
-            if (roleId == DRIVER_ROLE_ID) {
+            if (roleId == constants.DRIVER_ROLE_ID) {
                 // save information in DriverProfile table 
                 await models.DriverProfile.create({
                     userId: user.id,

@@ -20,7 +20,6 @@ enum Role: CaseIterable, Identifiable {
         }
     }
     
-
     var title: String {
         switch self {
             case .rider:
