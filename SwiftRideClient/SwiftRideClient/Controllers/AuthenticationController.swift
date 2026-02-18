@@ -16,7 +16,7 @@ struct AuthenticationController {
         self.httpClient = httpClient
     }
     
-    func login(username: String, password: String) async throws {
+    func login(username: String, password: String) async throws -> LoginResponse {
         let body = ["username": username, "password": password]
         let bodyData = try JSONEncoder().encode(body)
         let resource = Resource(url: Constants.Urls.login, method: .post(bodyData), modelType: LoginResponse.self)
@@ -30,6 +30,8 @@ struct AuthenticationController {
             UserDefaults.standard.set(true, forKey: "isAuthenticated")
             UserDefaults.standard.set(userId, forKey: "userId")
         }
+
+        return loginResponse
     }
     
     func register(_ request: RegisterRequest) async throws -> RegisterResponse {
@@ -44,6 +46,7 @@ struct AuthenticationController {
         _ = Keychain<String>.delete("jwttoken")
         // update isAuthentication in UserDefaults
         UserDefaults.standard.set(false, forKey: "isAuthenticated")
+        UserDefaults.standard.removeObject(forKey: "userId")
     }
     
 }

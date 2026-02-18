@@ -1,10 +1,7 @@
+const ROLES = Object.freeze({
+    RIDER: 1,
+    DRIVER: 2
+})
 
-const RIDER_ROLE_ID = 1 
-const DRIVER_ROLE_ID = 2 
-
-module.exports = {
-    RIDER_ROLE_ID, 
-    DRIVER_ROLE_ID
-}
-
+module.exports = ROLES
 

@@ -28,7 +28,14 @@ struct RegisterScreen: View {
             isAuthenticating = true
             defer { isAuthenticating = false }
             
-            let registerRequest = RegisterRequest(username: username, password: password, roleId: role.id, make: make, model: model, licensePlate: licensePlate)
+            let registerRequest = RegisterRequest(
+                username: username,
+                password: password,
+                roleId: role.id,
+                make: role == .driver ? make : nil,
+                model: role == .driver ? model : nil,
+                licensePlate: role == .driver ? licensePlate : nil
+            )
             
             let response = try await authenticationController.register(registerRequest)
             

@@ -6,6 +6,9 @@ const { Op } = require('sequelize')
 const { validationResult } = require('express-validator')
 const constants = require('../config/constants')
 
+// configure the dotenv package 
+require('dotenv').config()
+
 exports.login = async (req, res) => {
 
     try {
@@ -18,7 +21,7 @@ exports.login = async (req, res) => {
         })
 
         if (!existingUser) {
-            // return back response that user already exists 
+           
             return res.status(401).json({
                 success: false,
                 message: 'Invalid username or password'
@@ -38,7 +41,7 @@ exports.login = async (req, res) => {
         // create the token and return the token 
         const token = jwt.sign(
             { userId: existingUser.id, roleId: existingUser.roleId },
-            'SECRET',
+            process.env.JWT_SECRET_KEY,
             { expiresIn: '7d' }
         )
 
@@ -81,7 +84,7 @@ exports.register = async (req, res) => {
 
         if (existingUser) {
             // return back response that user already exists 
-            return res.json({ message: 'Username is already taken', success: false })
+            return res.status(409).json({ message: 'Username is already taken', success: false })
         }
 
         await models.sequelize.transaction(async (t) => {
@@ -97,7 +100,7 @@ exports.register = async (req, res) => {
             }, { transaction: t })
 
             // check if the user is a driver 
-            if (roleId == constants.DRIVER_ROLE_ID) {
+            if (roleId == constants.DRIVER) {
                 // save information in DriverProfile table 
                 await models.DriverProfile.create({
                     userId: user.id,

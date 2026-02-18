@@ -30,7 +30,10 @@ struct LoginScreen: View {
             isAuthenticating = true
             defer { isAuthenticating = false }
             
-            try await authenticationController.login(username: username, password: password)
+            let response = try await authenticationController.login(username: username, password: password)
+            if !response.success {
+                errorMessage = response.message
+            }
             
         } catch {
             errorMessage = error.localizedDescription
