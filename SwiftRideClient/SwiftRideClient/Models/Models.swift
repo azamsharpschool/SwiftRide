@@ -43,3 +43,10 @@ struct RegisterResponse: Codable {
     let message: String?
     let success: Bool
 }
+
+struct LoginResponse: Codable {
+    let message: String?
+    let success: Bool
+    let token: String?
+    let userId: Int? 
+}

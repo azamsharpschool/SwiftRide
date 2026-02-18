@@ -9,9 +9,16 @@ import SwiftUI
 
 @main
 struct SwiftRideClientApp: App {
+    
+    @AppStorage("isAuthenticated") private var isAuthenticated: Bool = false
+    
     var body: some Scene {
         WindowGroup {
-            RegisterScreen()
+            if isAuthenticated {
+                HomeScreen()
+            } else {
+                LoginScreen() 
+            }
         }
     }
 }

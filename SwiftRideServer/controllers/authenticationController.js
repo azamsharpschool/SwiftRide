@@ -6,8 +6,56 @@ const { Op } = require('sequelize')
 const { validationResult } = require('express-validator')
 const constants = require('../config/constants')
 
-const RIDER_ROLE_ID = 1
-const DRIVER_ROLE_ID = 2
+exports.login = async (req, res) => {
+
+    try {
+        
+        const { username, password } = req.body
+        const existingUser = await models.User.findOne({
+            where: {
+                username: { [Op.iLike]: username }
+            }
+        })
+
+        if (!existingUser) {
+            // return back response that user already exists 
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid username or password'
+            });
+        }
+
+        // compare password 
+        const isPasswordValid = await bcrypt.compare(password, existingUser.password)
+
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid username or password'
+            })
+        }
+
+        // create the token and return the token 
+        const token = jwt.sign(
+            { userId: existingUser.id, roleId: existingUser.roleId },
+            'SECRET',
+            { expiresIn: '7d' }
+        )
+
+        return res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            token, 
+            userId: existingUser.id 
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+
+}
 
 exports.register = async (req, res) => {
 

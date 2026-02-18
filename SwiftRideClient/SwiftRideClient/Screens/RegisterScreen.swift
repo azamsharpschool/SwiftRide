@@ -51,7 +51,8 @@ struct RegisterScreen: View {
     }
     
     var body: some View {
-        ZStack {
+        NavigationStack {
+            ZStack {
             LinearGradient(
                 colors: [
                     Color(red: 0.05, green: 0.06, blue: 0.08),
@@ -71,7 +72,7 @@ struct RegisterScreen: View {
                             .foregroundStyle(.white)
                         
                         HStack(spacing: 6) {
-                            Text("for Swift developers")
+                            Text("Ride sharing app for Swift developers.")
                                 .font(.system(size: 14, weight: .semibold, design: .monospaced))
                                 .foregroundStyle(.white.opacity(0.7))
                             
@@ -177,11 +178,24 @@ struct RegisterScreen: View {
                             .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
                     }
                     
+                    HStack {
+                        Text("Already have an account?")
+                            .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(.white.opacity(0.6))
+                        Button("Login") {
+                            
+                        }
+                        .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(Color(red: 0.44, green: 0.86, blue: 0.36))
+                    }
+                    .padding(.top, 4)
+                    
                     Spacer(minLength: 12)
                 }
                 .padding(24)
             }
             .scrollDismissesKeyboard(.interactively)
+            }
         }
     }
 }

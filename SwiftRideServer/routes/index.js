@@ -4,6 +4,17 @@ const authenticationController = require('../controllers/authenticationControlle
 const { body } = require('express-validator')
 const constants = require('../config/constants')
 
+router.post('/login',
+    [
+        body('username')
+            .notEmpty().withMessage('Username is required'), 
+        
+        body('password')
+            .notEmpty().withMessage('Password is required')
+    ],
+    
+    authenticationController.login)
+
 router.post('/register',
     [
         body('username')
