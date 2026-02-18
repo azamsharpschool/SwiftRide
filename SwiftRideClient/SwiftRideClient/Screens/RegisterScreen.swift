@@ -18,6 +18,7 @@ struct RegisterScreen: View {
     @State private var errorMessage: String?
     @State private var isAuthenticating: Bool = false
     
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.authenticationController) private var authenticationController
     
     private func register() async {
@@ -33,7 +34,11 @@ struct RegisterScreen: View {
             
             if !response.success {
                 errorMessage = response.message
+            } else {
+                dismiss()
             }
+            
+            
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -51,7 +56,7 @@ struct RegisterScreen: View {
     }
     
     var body: some View {
-        NavigationStack {
+        
             ZStack {
             LinearGradient(
                 colors: [
@@ -178,28 +183,18 @@ struct RegisterScreen: View {
                             .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
                     }
                     
-                    HStack {
-                        Text("Already have an account?")
-                            .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                            .foregroundStyle(.white.opacity(0.6))
-                        Button("Login") {
-                            
-                        }
-                        .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(Color(red: 0.44, green: 0.86, blue: 0.36))
-                    }
-                    .padding(.top, 4)
-                    
                     Spacer(minLength: 12)
                 }
                 .padding(24)
             }
             .scrollDismissesKeyboard(.interactively)
             }
-        }
+        
     }
 }
 
 #Preview {
-    RegisterScreen()
+    NavigationStack {
+        RegisterScreen()
+    }
 }
