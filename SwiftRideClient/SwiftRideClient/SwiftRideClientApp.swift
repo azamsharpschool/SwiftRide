@@ -11,13 +11,18 @@ import SwiftUI
 struct SwiftRideClientApp: App {
     
     @AppStorage("isAuthenticated") private var isAuthenticated: Bool = false
+    @AppStorage("roleId") private var roleId: Int = 0
     
     var body: some Scene {
         WindowGroup {
             if isAuthenticated {
-                HomeScreen()
+                if roleId == Role.rider.rawValue {
+                    RiderHomeScreen()
+                } else {
+                    DriverHomeScreen() 
+                }
             } else {
-                LoginScreen() 
+                LoginScreen()
             }
         }
     }

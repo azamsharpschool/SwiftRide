@@ -49,7 +49,8 @@ exports.login = async (req, res) => {
             success: true,
             message: 'Login successful',
             token, 
-            userId: existingUser.id 
+            userId: existingUser.id, 
+            roleId: existingUser.roleId 
         })
     } catch (error) {
         return res.status(500).json({
@@ -83,7 +84,6 @@ exports.register = async (req, res) => {
         })
 
         if (existingUser) {
-            // return back response that user already exists 
             return res.status(409).json({ message: 'Username is already taken', success: false })
         }
 

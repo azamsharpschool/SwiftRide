@@ -119,6 +119,12 @@ struct HTTPClient {
             request.url = url
         }
         
+        // get the value from keychain
+        let token: String? = Keychain.get("jwttoken")
+        if let token {
+            request.setValue(token, forHTTPHeaderField: "jwttoken")
+        }
+        
         // Set custom headers
         for (key, value) in defaultHeaders {
             request.setValue(value, forHTTPHeaderField: key)

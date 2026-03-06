@@ -7,17 +7,12 @@
 
 import Foundation
 
-enum Role: CaseIterable, Identifiable {
-    case rider
-    case driver
+enum Role: Int, CaseIterable, Identifiable, Codable {
+    case rider = 1
+    case driver = 2
 
     var id: Int {
-        switch self {
-            case .rider:
-                return 1
-            case .driver:
-                return 2
-        }
+        rawValue
     }
     
     var title: String {
@@ -48,5 +43,6 @@ struct LoginResponse: Codable {
     let message: String?
     let success: Bool
     let token: String?
-    let userId: Int? 
+    let userId: Int?
+    let roleId: Int?
 }

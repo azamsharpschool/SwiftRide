@@ -188,6 +188,7 @@ struct RegisterScreen: View {
                             .foregroundStyle(Color(red: 1.0, green: 0.45, blue: 0.35))
                             .padding(12)
                             .background(Color.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+                            .frame(maxWidth: .infinity, alignment: .center)
                     }
                     
                     Spacer(minLength: 12)

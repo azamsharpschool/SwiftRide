@@ -23,12 +23,15 @@ struct AuthenticationController {
         let loginResponse = try await httpClient.load(resource)
         
         if let token = loginResponse.token,
-           let userId = loginResponse.userId, loginResponse.success {
+           let userId = loginResponse.userId,
+           let roleId = loginResponse.roleId, loginResponse.success {
+            
             // save token in the keychain
             Keychain.set(token, forKey: "jwttoken")
             // update the user defaults
             UserDefaults.standard.set(true, forKey: "isAuthenticated")
             UserDefaults.standard.set(userId, forKey: "userId")
+            UserDefaults.standard.set(roleId, forKey: "roleId")
         }
 
         return loginResponse
@@ -47,6 +50,7 @@ struct AuthenticationController {
         // update isAuthentication in UserDefaults
         UserDefaults.standard.set(false, forKey: "isAuthenticated")
         UserDefaults.standard.removeObject(forKey: "userId")
+        UserDefaults.standard.removeObject(forKey: "roleId")
     }
     
 }
