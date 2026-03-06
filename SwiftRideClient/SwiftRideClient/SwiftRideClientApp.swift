@@ -22,7 +22,7 @@ struct SwiftRideClientApp: App {
                         ProgressView()
                     case .authenticated:
                     if roleId == Role.rider.rawValue {
-                        RiderHomeScreen()
+                        RiderRootScreen()
                     } else {
                         DriverHomeScreen()
                     }

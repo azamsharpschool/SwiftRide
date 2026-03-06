@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct RiderHomeScreen: View {
+struct RiderRootScreen: View {
     var body: some View {
         TabView {
-            RideHomeTab()
+            RiderHomeScreen()
                 .tabItem {
                     Label("Home", systemImage: "map")
                 }
@@ -38,7 +38,10 @@ struct RiderHomeScreen: View {
     }
 }
 
-private struct RideHomeTab: View {
+private struct RiderHomeScreen: View {
+    
+    @Environment(AuthenticationStore.self) private var authenticationStore
+    
     var body: some View {
         Text("Ride Home")
     }
@@ -69,5 +72,6 @@ private struct ExploreTab: View {
 }
 
 #Preview {
-    RiderHomeScreen()
+    RiderRootScreen()
+        .environment(AuthenticationStore(httpClient: HTTPClient()))
 }
