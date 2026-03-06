@@ -16,7 +16,7 @@ struct LoginScreen: View {
     
     @State private var presentRegisterScreen: Bool = false
     
-    @Environment(\.authenticationController) private var authenticationController
+    @Environment(AuthenticationStore.self) private var authenticationStore
     
     private var isFormValid: Bool {
         !username.isEmptyOrWhitespace && !password.isEmptyOrWhitespace
@@ -30,7 +30,7 @@ struct LoginScreen: View {
             isAuthenticating = true
             defer { isAuthenticating = false }
             
-            let response = try await authenticationController.login(username: username, password: password)
+            let response = try await authenticationStore.login(username: username, password: password)
             if !response.success {
                 errorMessage = response.message
             }
@@ -154,4 +154,5 @@ struct LoginScreen: View {
 
 #Preview {
     LoginScreen()
+        .environment(AuthenticationStore(httpClient: HTTPClient()))
 }

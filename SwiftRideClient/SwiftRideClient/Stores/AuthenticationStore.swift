@@ -1,16 +1,25 @@
 //
-//  AuthenticationController.swift
+//  AuthenticationStore.swift
 //  SwiftRideClient
 //
-//  Created by Mohammad Azam on 2/16/26.
+//  Created by Mohammad Azam on 3/6/26.
 //
 
 import Foundation
+import Observation
 
-struct AuthenticationController {
+@Observable
+class AuthenticationStore {
     
-    // create HTTPClientProtocol if needed to mock
     let httpClient: HTTPClient
+    
+    var authenticationState: AuthenticationState = .checking
+    
+    enum AuthenticationState {
+        case checking
+        case authenticated
+        case unauthenticated
+    }
     
     init(httpClient: HTTPClient) {
         self.httpClient = httpClient
@@ -26,10 +35,10 @@ struct AuthenticationController {
            let userId = loginResponse.userId,
            let roleId = loginResponse.roleId, loginResponse.success {
             
+            authenticationState = .authenticated
             // save token in the keychain
             Keychain.set(token, forKey: "jwttoken")
             // update the user defaults
-            UserDefaults.standard.set(true, forKey: "isAuthenticated")
             UserDefaults.standard.set(userId, forKey: "userId")
             UserDefaults.standard.set(roleId, forKey: "roleId")
         }
@@ -48,19 +57,23 @@ struct AuthenticationController {
         // remove from keychain
         _ = Keychain<String>.delete("jwttoken")
         // update isAuthentication in UserDefaults
-        UserDefaults.standard.set(false, forKey: "isAuthenticated")
         UserDefaults.standard.removeObject(forKey: "userId")
         UserDefaults.standard.removeObject(forKey: "roleId")
+        authenticationState = .unauthenticated
     }
     
-    private func isTokenExpired() -> Bool {
-        guard let token: String = Keychain.get("jwttoken") else { return true }
-        return JWTDecoder.isTokenExpired(token)
-    }
-    
-    func isAuthenticated() -> Bool {
-        guard let _: String = Keychain.get("jwttoken") else { return true }
-        return !isTokenExpired()
+    func checkAuthentication() {
+        guard let token: String = Keychain.get("jwttoken") else {
+            logout()
+            return
+        }
+        
+        if JWTDecoder.isTokenExpired(token) {
+            logout()
+        } else {
+            authenticationState = .authenticated
+        }
     }
     
 }
+ 

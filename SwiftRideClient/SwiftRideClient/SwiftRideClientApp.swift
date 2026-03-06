@@ -10,20 +10,29 @@ import SwiftUI
 @main
 struct SwiftRideClientApp: App {
     
-    @AppStorage("isAuthenticated") private var isAuthenticated: Bool = false
     @AppStorage("roleId") private var roleId: Int = 0
+    @State private var authenticationStore = AuthenticationStore(httpClient: HTTPClient())
     
     var body: some Scene {
         WindowGroup {
-            if isAuthenticated {
-                if roleId == Role.rider.rawValue {
-                    RiderHomeScreen()
-                } else {
-                    DriverHomeScreen() 
+            Group {
+                
+                switch authenticationStore.authenticationState {
+                    case .checking:
+                        ProgressView()
+                    case .authenticated:
+                    if roleId == Role.rider.rawValue {
+                        RiderHomeScreen()
+                    } else {
+                        DriverHomeScreen()
+                    }
+                    case .unauthenticated:
+                        LoginScreen()
                 }
-            } else {
-                LoginScreen()
-            }
+            }.environment(authenticationStore)
+                .task {
+                    authenticationStore.checkAuthentication()
+                }
         }
     }
 }

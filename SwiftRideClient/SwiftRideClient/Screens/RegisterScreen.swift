@@ -19,7 +19,7 @@ struct RegisterScreen: View {
     @State private var isAuthenticating: Bool = false
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.authenticationController) private var authenticationController
+    @Environment(AuthenticationStore.self) private var authenticationStore
     
     private func register() async {
         
@@ -37,7 +37,7 @@ struct RegisterScreen: View {
                 licensePlate: role == .driver ? licensePlate : nil
             )
             
-            let response = try await authenticationController.register(registerRequest)
+            let response = try await authenticationStore.register(registerRequest)
             
             if !response.success {
                 errorMessage = response.message
@@ -204,5 +204,5 @@ struct RegisterScreen: View {
 #Preview {
     NavigationStack {
         RegisterScreen()
-    }
+    }.environment(AuthenticationStore(httpClient: .development))
 }
