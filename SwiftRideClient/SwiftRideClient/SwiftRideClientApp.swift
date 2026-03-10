@@ -31,8 +31,7 @@ struct SwiftRideClientApp: App {
             }.environment(authenticationStore)
                 .task {
                    // _ = Keychain<String>.delete("accessToken")
-                    print(roleId)
-                    authenticationStore.checkAuthentication()
+                    await authenticationStore.checkAuthentication()
                 }
         }
     }

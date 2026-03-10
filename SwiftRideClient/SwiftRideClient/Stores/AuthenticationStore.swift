@@ -44,6 +44,8 @@ class AuthenticationStore {
             UserDefaults.standard.set(roleId, forKey: "roleId")
             
             authenticationState = .authenticated
+        } else {
+            authenticationState = .unauthenticated
         }
 
         return loginResponse
@@ -58,7 +60,7 @@ class AuthenticationStore {
         } catch NetworkError.unauthorized {
             logout()
         } catch {
-            throw error 
+            throw error
         }
     
     }
@@ -73,24 +75,32 @@ class AuthenticationStore {
     func logout() {
         // remove from keychain
         _ = Keychain<String>.delete("accessToken")
+        _ = Keychain<String>.delete("refreshToken")
         // update isAuthentication in UserDefaults
         UserDefaults.standard.removeObject(forKey: "userId")
         UserDefaults.standard.removeObject(forKey: "roleId")
         authenticationState = .unauthenticated
     }
     
-    func checkAuthentication() {
-        guard let token: String = Keychain.get("accessToken") else {
-            print("token is not in the keychain")
+    func checkAuthentication() async {
+        
+        if let accessToken: String = Keychain.get("accessToken"),
+           !JWTDecoder.isTokenExpired(accessToken) {
+            authenticationState = .authenticated
+            return
+        }
+        
+        guard let _: String = Keychain.get("refreshToken") else {
             logout()
             return
         }
         
-        if JWTDecoder.isTokenExpired(token) {
-            print("token is expired")
+        // refresh the access token
+        do {
+            try await httpClient.refreshAccessToken()
+            authenticationState = .authenticated 
+        } catch {
             logout()
-        } else {
-            authenticationState = .authenticated
         }
     }
     

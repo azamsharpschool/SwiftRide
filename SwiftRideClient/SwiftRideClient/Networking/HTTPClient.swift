@@ -183,7 +183,7 @@ struct HTTPClient {
         }
     }
     
-    private func refreshAccessToken() async throws {
+    func refreshAccessToken() async throws {
         
         // get the refresh token from keychain
         guard let refreshToken: String = Keychain.get("refreshToken") else {
