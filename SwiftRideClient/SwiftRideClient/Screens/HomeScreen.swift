@@ -9,11 +9,11 @@ import SwiftUI
 
 struct HomeScreen: View {
     
-    @Environment(\.authenticationController) private var authenticationController
+    @Environment(AuthenticationStore.self) private var authenticationStore
     
     var body: some View {
         Button("Logout") {
-            authenticationController.logout() 
+            authenticationStore.logout()
         }
     }
 }

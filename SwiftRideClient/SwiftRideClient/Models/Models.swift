@@ -42,7 +42,8 @@ struct RegisterResponse: Codable {
 struct LoginResponse: Codable {
     let message: String?
     let success: Bool
-    let token: String?
+    let accessToken: String?
+    let refreshToken: String? 
     let userId: Int?
     let roleId: Int?
 }

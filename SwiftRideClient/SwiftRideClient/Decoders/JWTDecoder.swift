@@ -8,9 +8,9 @@
 import Foundation
 
 struct JWTPayload: Decodable {
-    let userId: Int?
-    let iat: TimeInterval?
-    let exp: TimeInterval?
+    let userId: Int
+    let roleId: Int
+    let exp: Double?
 }
 
 enum JWTError: Error {
@@ -30,6 +30,7 @@ struct JWTDecoder {
             
             let expirationDate = Date(timeIntervalSince1970: exp)
             return Date() >= expirationDate
+            
         } catch {
             return true
         }

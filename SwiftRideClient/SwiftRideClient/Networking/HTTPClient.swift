@@ -120,9 +120,9 @@ struct HTTPClient {
         }
         
         // get the value from keychain
-        let token: String? = Keychain.get("jwttoken")
+        let token: String? = Keychain.get("accessToken")
         if let token {
-            request.setValue(token, forHTTPHeaderField: "jwttoken")
+            request.setValue(token, forHTTPHeaderField: "accessToken")
         }
         
         // Set custom headers

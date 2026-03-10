@@ -3,6 +3,9 @@ const router = express.Router()
 const authenticationController = require('../controllers/authenticationController')
 const { body } = require('express-validator')
 const constants = require('../config/constants')
+const authenticate = require('../middlewares/authenticate')
+
+router.get("/secure-route", authenticate, authenticationController.secure)
 
 router.post('/login',
     [

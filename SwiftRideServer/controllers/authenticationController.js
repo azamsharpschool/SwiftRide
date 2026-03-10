@@ -9,10 +9,14 @@ const constants = require('../config/constants')
 // configure the dotenv package 
 require('dotenv').config()
 
+exports.secure = async (req, res) => {
+    res.send("Testing...")
+}
+ 
 exports.login = async (req, res) => {
 
     try {
-        
+
         const { username, password } = req.body
         const existingUser = await models.User.findOne({
             where: {
@@ -21,7 +25,7 @@ exports.login = async (req, res) => {
         })
 
         if (!existingUser) {
-           
+
             return res.status(401).json({
                 success: false,
                 message: 'Invalid username or password'
@@ -38,19 +42,27 @@ exports.login = async (req, res) => {
             })
         }
 
-        // create the token and return the token 
-        const token = jwt.sign(
+        // create the access token
+        const accessToken = jwt.sign(
             { userId: existingUser.id, roleId: existingUser.roleId },
             process.env.JWT_SECRET_KEY,
+            { expiresIn: '15m' }
+        )
+
+        // create the refresh token 
+        const refreshToken = jwt.sign(
+            { userId: existingUser.id, type: 'refresh' }, 
+            process.env.JWT_REFRESH_TOKEN_KEY, 
             { expiresIn: '7d' }
         )
 
         return res.status(200).json({
             success: true,
             message: 'Login successful',
-            token, 
-            userId: existingUser.id, 
-            roleId: existingUser.roleId 
+            accessToken, accessToken,
+            refreshToken: refreshToken,
+            userId: existingUser.id,
+            roleId: existingUser.roleId
         })
     } catch (error) {
         return res.status(500).json({
@@ -114,6 +126,7 @@ exports.register = async (req, res) => {
         res.status(201).json({ success: true })
 
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ message: 'Internal server error', success: false })
     }
 

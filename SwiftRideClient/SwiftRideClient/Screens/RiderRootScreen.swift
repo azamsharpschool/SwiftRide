@@ -43,7 +43,9 @@ private struct RiderHomeScreen: View {
     @Environment(AuthenticationStore.self) private var authenticationStore
     
     var body: some View {
-        Text("Ride Home")
+        Button("Logout") {
+            authenticationStore.logout()
+        }
     }
 }
 

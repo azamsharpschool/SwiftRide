@@ -16,7 +16,6 @@ struct SwiftRideClientApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                
                 switch authenticationStore.authenticationState {
                     case .checking:
                         ProgressView()
@@ -31,6 +30,8 @@ struct SwiftRideClientApp: App {
                 }
             }.environment(authenticationStore)
                 .task {
+                   // _ = Keychain<String>.delete("accessToken")
+                    print(roleId)
                     authenticationStore.checkAuthentication()
                 }
         }

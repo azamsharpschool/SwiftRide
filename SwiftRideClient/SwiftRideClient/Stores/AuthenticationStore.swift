@@ -12,7 +12,6 @@ import Observation
 class AuthenticationStore {
     
     let httpClient: HTTPClient
-    
     var authenticationState: AuthenticationState = .checking
     
     enum AuthenticationState {
@@ -31,16 +30,20 @@ class AuthenticationStore {
         let resource = Resource(url: Constants.Urls.login, method: .post(bodyData), modelType: LoginResponse.self)
         let loginResponse = try await httpClient.load(resource)
         
-        if let token = loginResponse.token,
+        if let accessToken = loginResponse.accessToken,
+           let refreshToken = loginResponse.refreshToken,
            let userId = loginResponse.userId,
            let roleId = loginResponse.roleId, loginResponse.success {
             
-            authenticationState = .authenticated
-            // save token in the keychain
-            Keychain.set(token, forKey: "jwttoken")
+            // save access token in the keychain
+            Keychain.set(accessToken, forKey: "accessToken")
+            Keychain.set(refreshToken, forKey: "refreshToken")
+            
             // update the user defaults
             UserDefaults.standard.set(userId, forKey: "userId")
             UserDefaults.standard.set(roleId, forKey: "roleId")
+            
+            authenticationState = .authenticated
         }
 
         return loginResponse
@@ -55,7 +58,7 @@ class AuthenticationStore {
     
     func logout() {
         // remove from keychain
-        _ = Keychain<String>.delete("jwttoken")
+        _ = Keychain<String>.delete("accessToken")
         // update isAuthentication in UserDefaults
         UserDefaults.standard.removeObject(forKey: "userId")
         UserDefaults.standard.removeObject(forKey: "roleId")
@@ -63,12 +66,14 @@ class AuthenticationStore {
     }
     
     func checkAuthentication() {
-        guard let token: String = Keychain.get("jwttoken") else {
+        guard let token: String = Keychain.get("accessToken") else {
+            print("token is not in the keychain")
             logout()
             return
         }
         
         if JWTDecoder.isTokenExpired(token) {
+            print("token is expired")
             logout()
         } else {
             authenticationState = .authenticated
