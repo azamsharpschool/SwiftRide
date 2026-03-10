@@ -16,6 +16,7 @@ enum NetworkError: Error {
     case badRequest
     case decodingError(Error)
     case invalidResponse
+    case unauthorized
     case errorResponse(ErrorResponse, statusCode: Int)
     case unexpectedStatusCode(Int, Data)
 }
@@ -24,16 +25,18 @@ extension NetworkError: LocalizedError {
     
     var errorDescription: String? {
         switch self {
-            case .badRequest:
-                return NSLocalizedString("Bad Request (400): Unable to perform the request.", comment: "badRequestError")
-            case .decodingError(let error):
-                return NSLocalizedString("Unable to decode successfully. \(error)", comment: "decodingError")
-            case .invalidResponse:
-                return NSLocalizedString("Invalid response.", comment: "invalidResponse")
-            case .errorResponse(let errorResponse, let statusCode):
-                return NSLocalizedString("Error \(statusCode): \(errorResponse.message ?? "")", comment: "Error Response")
-            case .unexpectedStatusCode(let statusCode, _):
-                return NSLocalizedString("Unexpected status code: \(statusCode).", comment: "Unexpected Status Code")
+        case .badRequest:
+            return NSLocalizedString("Bad Request (400): Unable to perform the request.", comment: "badRequestError")
+        case .decodingError(let error):
+            return NSLocalizedString("Unable to decode successfully. \(error)", comment: "decodingError")
+        case .invalidResponse:
+            return NSLocalizedString("Invalid response.", comment: "invalidResponse")
+        case .unauthorized:
+            return NSLocalizedString("Unauthorized. Please login again.", comment: "unauthorized")
+        case .errorResponse(let errorResponse, let statusCode):
+            return NSLocalizedString("Error \(statusCode): \(errorResponse.message ?? "")", comment: "Error Response")
+        case .unexpectedStatusCode(let statusCode, _):
+            return NSLocalizedString("Unexpected status code: \(statusCode).", comment: "Unexpected Status Code")
         }
     }
 }
@@ -46,32 +49,32 @@ enum HTTPMethod {
     
     var name: String {
         switch self {
-            case .get:
-                return "GET"
-            case .post:
-                return "POST"
-            case .delete:
-                return "DELETE"
-            case .put:
-                return "PUT"
+        case .get:
+            return "GET"
+        case .post:
+            return "POST"
+        case .delete:
+            return "DELETE"
+        case .put:
+            return "PUT"
         }
     }
-
+    
     var body: Data? {
         switch self {
-            case .post(let data), .put(let data):
-                return data
-            case .get, .delete:
-                return nil
+        case .post(let data), .put(let data):
+            return data
+        case .get, .delete:
+            return nil
         }
     }
-
+    
     var queryItems: [URLQueryItem]? {
         switch self {
-            case .get(let items):
-                return items
-            case .post, .put, .delete:
-                return nil
+        case .get(let items):
+            return items
+        case .post, .put, .delete:
+            return nil
         }
     }
 }
@@ -104,12 +107,23 @@ struct HTTPClient {
     }
     
     func load<T: Codable>(_ resource: Resource<T>) async throws -> T {
+        do {
+            return try await loadWithoutRefresh(resource)
+        } catch {
+            if case NetworkError.unauthorized = error {
+                _ = try await refreshAccessToken()
+                return try await loadWithoutRefresh(resource)
+            }
+            throw error
+        }
+    }
+    
+    private func loadWithoutRefresh<T: Codable>(_ resource: Resource<T>) async throws -> T {
         
         var request = URLRequest(url: resource.url)
-        
-        // Set HTTP method and body if needed
         request.httpMethod = resource.method.name
         request.httpBody = resource.method.body
+        
         if let queryItems = resource.method.queryItems {
             var components = URLComponents(url: resource.url, resolvingAgainstBaseURL: false)
             components?.queryItems = queryItems
@@ -119,16 +133,14 @@ struct HTTPClient {
             request.url = url
         }
         
-        // get the value from keychain
-        let token: String? = Keychain.get("accessToken")
-        if let token {
-            request.setValue(token, forHTTPHeaderField: "accessToken")
+        if let accessToken: String = Keychain.get("accessToken") {
+            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         }
         
-        // Set custom headers
         for (key, value) in defaultHeaders {
             request.setValue(value, forHTTPHeaderField: key)
         }
+        
         if let headers = resource.headers {
             for (key, value) in headers {
                 request.setValue(value, forHTTPHeaderField: key)
@@ -141,26 +153,46 @@ struct HTTPClient {
             throw NetworkError.invalidResponse
         }
         
-        // Check for specific HTTP errors
         switch httpResponse.statusCode {
-            case 200...299:
-                break // Success
-            default:
-                if let errorResponse = try? decoder.decode(ErrorResponse.self, from: data) {
-                    throw NetworkError.errorResponse(errorResponse, statusCode: httpResponse.statusCode)
-                }
-                throw NetworkError.unexpectedStatusCode(httpResponse.statusCode, data)
+        case 200...299:
+            break
+        case 401:
+            throw NetworkError.unauthorized
+        default:
+            if let errorResponse = try? decoder.decode(ErrorResponse.self, from: data) {
+                throw NetworkError.errorResponse(errorResponse, statusCode: httpResponse.statusCode)
+            }
+            throw NetworkError.unexpectedStatusCode(httpResponse.statusCode, data)
         }
         
         do {
             if data.isEmpty, T.self == EmptyResponse.self {
                 return EmptyResponse() as! T
             }
+            
             let result = try decoder.decode(resource.modelType, from: data)
             return result
+            
         } catch {
             throw NetworkError.decodingError(error)
         }
+    }
+    
+    private func refreshAccessToken() async throws {
+        
+        // get the refresh token from keychain
+        guard let refreshToken: String = Keychain.get("refreshToken") else {
+            throw NetworkError.unauthorized
+        }
+        
+        let body = try JSONEncoder().encode(RefreshTokenRequest(refreshToken: refreshToken))
+        
+        let resource = Resource(url: Constants.Urls.refreshToken, method: .post(body), modelType: RefreshTokenResponse.self)
+        
+            let response = try await loadWithoutRefresh(resource)
+            print("refresh access token")
+            print(response.accessToken)
+            Keychain.set(response.accessToken, forKey: "accessToken")
     }
 }
 

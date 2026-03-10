@@ -10,9 +10,65 @@ const constants = require('../config/constants')
 require('dotenv').config()
 
 exports.secure = async (req, res) => {
-    res.send("Testing...")
+    console.log("secure")
+    res.status(200).json({
+        success: true, 
+        message: "Secure"
+    })
 }
- 
+
+exports.refresh = async (req, res) => {
+
+    // get the refresh token from the body 
+    const { refreshToken } = req.body
+
+    console.log(refreshToken)
+
+    // if there is no token 
+    if (!refreshToken) {
+        return res.status(401).json({
+            success: false,
+            message: 'Unauthorized.'
+        })
+    }
+
+    // verify the token 
+    try {
+
+        const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN_KEY)
+
+        // check if the user exists or not 
+        const user = await models.User.findByPk(payload.userId)
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'User does not exist.'
+            })
+        }
+
+        // create the access token
+        const accessToken = jwt.sign(
+            { userId: user.id, roleId: user.roleId },
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: '10s' }
+        )
+
+        return res.status(200).json({
+            success: true,
+            accessToken: accessToken
+        })
+
+    } catch (error) {
+        print(error)
+        return res.status(401).json({
+            success: false,
+            message: "Invalid refresh token"
+        })
+    }
+
+}
+
 exports.login = async (req, res) => {
 
     try {
@@ -46,13 +102,13 @@ exports.login = async (req, res) => {
         const accessToken = jwt.sign(
             { userId: existingUser.id, roleId: existingUser.roleId },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: '15m' }
+            { expiresIn: '10s' }
         )
 
         // create the refresh token 
         const refreshToken = jwt.sign(
-            { userId: existingUser.id, type: 'refresh' }, 
-            process.env.JWT_REFRESH_TOKEN_KEY, 
+            { userId: existingUser.id, type: 'refresh' },
+            process.env.JWT_REFRESH_TOKEN_KEY,
             { expiresIn: '7d' }
         )
 

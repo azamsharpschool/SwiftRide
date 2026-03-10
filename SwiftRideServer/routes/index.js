@@ -7,6 +7,8 @@ const authenticate = require('../middlewares/authenticate')
 
 router.get("/secure-route", authenticate, authenticationController.secure)
 
+router.post('/refresh', authenticationController.refresh)
+
 router.post('/login',
     [
         body('username')

@@ -43,8 +43,17 @@ private struct RiderHomeScreen: View {
     @Environment(AuthenticationStore.self) private var authenticationStore
     
     var body: some View {
-        Button("Logout") {
-            authenticationStore.logout()
+        VStack {
+            
+            Button("Access Secure Route") {
+                Task {
+                    try await authenticationStore.updateProfile()
+                }
+            }
+            
+            Button("Logout") {
+                authenticationStore.logout()
+            }
         }
     }
 }

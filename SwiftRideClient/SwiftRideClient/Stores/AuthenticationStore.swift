@@ -49,6 +49,14 @@ class AuthenticationStore {
         return loginResponse
     }
     
+    func updateProfile() async throws {
+        
+        let url = URL(string: "http://localhost:8080/api/auth/secure-route")!
+        let resource = Resource(url: url, modelType: SecureResponse.self)
+        let result = try await httpClient.load(resource)
+        print(result)
+    }
+    
     func register(_ request: RegisterRequest) async throws -> RegisterResponse {
         
         let body = try JSONEncoder().encode(request)

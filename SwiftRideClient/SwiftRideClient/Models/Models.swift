@@ -43,7 +43,20 @@ struct LoginResponse: Codable {
     let message: String?
     let success: Bool
     let accessToken: String?
-    let refreshToken: String? 
+    let refreshToken: String?
     let userId: Int?
     let roleId: Int?
+}
+
+struct RefreshTokenRequest: Codable {
+    let refreshToken: String
+}
+
+struct RefreshTokenResponse: Codable {
+    let accessToken: String
+}
+
+struct SecureResponse: Codable {
+    let success: Bool
+    let message: String? 
 }

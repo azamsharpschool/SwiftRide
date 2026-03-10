@@ -4,6 +4,8 @@ const models = require('../models')
 
 async function authenticate(req, res, next) {
 
+    console.log('authenticate middleware')
+
     // check the headers 
     const authHeader = req.headers.authorization
     if(!authHeader || !authHeader.startsWith("Bearer ")) {
