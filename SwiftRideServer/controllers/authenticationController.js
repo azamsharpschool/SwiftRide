@@ -37,6 +37,14 @@ exports.refresh = async (req, res) => {
 
         const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN_KEY)
 
+        // check if the token type is refresh 
+        if(payload.type != 'refresh') {
+            return res.status(401).json({
+                success: false, 
+                message: 'Invalid refresh token.'
+            })
+        }
+
         // check if the user exists or not 
         const user = await models.User.findByPk(payload.userId)
 
@@ -60,7 +68,6 @@ exports.refresh = async (req, res) => {
         })
 
     } catch (error) {
-        print(error)
         return res.status(401).json({
             success: false,
             message: "Invalid refresh token"
@@ -115,8 +122,8 @@ exports.login = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: 'Login successful',
-            accessToken, accessToken,
-            refreshToken: refreshToken,
+            accessToken,
+            refreshToken,
             userId: existingUser.id,
             roleId: existingUser.roleId
         })
@@ -179,7 +186,7 @@ exports.register = async (req, res) => {
             }
         })
 
-        res.status(201).json({ success: true })
+        return res.status(201).json({ success: true })
 
     } catch (error) {
         console.log(error)
