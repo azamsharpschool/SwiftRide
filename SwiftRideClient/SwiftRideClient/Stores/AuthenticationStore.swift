@@ -50,11 +50,17 @@ class AuthenticationStore {
     }
     
     func updateProfile() async throws {
-        
-        let url = URL(string: "http://localhost:8080/api/auth/secure-route")!
-        let resource = Resource(url: url, modelType: SecureResponse.self)
-        let result = try await httpClient.load(resource)
-        print(result)
+    
+        do {
+            let url = URL(string: "http://localhost:8080/api/auth/secure-route")!
+            let resource = Resource(url: url, modelType: SecureResponse.self)
+            let _ = try await httpClient.load(resource)
+        } catch NetworkError.unauthorized {
+            logout()
+        } catch {
+            throw error 
+        }
+    
     }
     
     func register(_ request: RegisterRequest) async throws -> RegisterResponse {

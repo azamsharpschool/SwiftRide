@@ -51,7 +51,7 @@ exports.refresh = async (req, res) => {
         const accessToken = jwt.sign(
             { userId: user.id, roleId: user.roleId },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: '10s' }
+            { expiresIn: '5s' }
         )
 
         return res.status(200).json({
@@ -102,14 +102,14 @@ exports.login = async (req, res) => {
         const accessToken = jwt.sign(
             { userId: existingUser.id, roleId: existingUser.roleId },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: '10s' }
+            { expiresIn: '5s' }
         )
 
         // create the refresh token 
         const refreshToken = jwt.sign(
             { userId: existingUser.id, type: 'refresh' },
             process.env.JWT_REFRESH_TOKEN_KEY,
-            { expiresIn: '7d' }
+            { expiresIn: '10s' }
         )
 
         return res.status(200).json({
