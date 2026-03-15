@@ -10,17 +10,17 @@ import Foundation
 enum Role: Int, CaseIterable, Identifiable, Codable {
     case rider = 1
     case driver = 2
-
+    
     var id: Int {
         rawValue
     }
     
     var title: String {
         switch self {
-            case .rider:
-                return "Rider"
-            case .driver:
-                return "Driver"
+        case .rider:
+            return "Rider"
+        case .driver:
+            return "Driver"
         }
     }
 }
@@ -46,7 +46,7 @@ struct LoginResponse: Codable {
     let refreshToken: String?
     let userId: Int?
     let roleId: Int?
-    let isOnline: Bool? 
+    let isOnline: Bool?
 }
 
 struct RefreshTokenRequest: Codable {
@@ -59,10 +59,41 @@ struct RefreshTokenResponse: Codable {
 
 struct SecureResponse: Codable {
     let success: Bool
-    let message: String? 
+    let message: String?
 }
 
 struct APIResponse: Codable {
     let success: Bool
-    let message: String? 
+    let message: String?
+}
+
+enum ServiceType: String, Codable, CaseIterable {
+    
+    case swiftrideX = "SWIFTRIDE_X"
+    case swiftrideBlack = "SWIFTRIDE_BLACK"
+    case swiftrideSUV = "SWIFTRIDE_SUV"
+    
+    var displayName: String {
+        switch self {
+        case .swiftrideX:
+            return "SwiftRide X"
+        case .swiftrideBlack:
+            return "SwiftRide Black"
+        case .swiftrideSUV:
+            return "SwiftRide SUV"
+        }
+    }
+}
+
+struct CreateRideRequest: Codable {
+    
+    var serviceType: ServiceType = .swiftrideX
+    
+    var pickupLatitude: Double = 0
+    var pickupLongitude: Double = 0
+    var pickupAddress: String = ""
+    
+    var destinationLatitude: Double = 0
+    var destinationLongitude: Double = 0
+    var destinationAddress: String = ""
 }
