@@ -22,7 +22,8 @@ module.exports = (sequelize, DataTypes) => {
     userId: DataTypes.INTEGER,
     make: DataTypes.STRING,
     model: DataTypes.STRING,
-    licensePlate: DataTypes.STRING
+    licensePlate: DataTypes.STRING, 
+    isOnline: DataTypes.BOOLEAN 
   }, {
     sequelize,
     modelName: 'DriverProfile',

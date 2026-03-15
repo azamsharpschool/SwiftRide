@@ -6,9 +6,6 @@ const { Op } = require('sequelize')
 const { validationResult } = require('express-validator')
 const constants = require('../config/constants')
 
-// configure the dotenv package 
-require('dotenv').config()
-
 exports.secure = async (req, res) => {
     console.log("secure")
     res.status(200).json({
@@ -59,7 +56,7 @@ exports.refresh = async (req, res) => {
         const accessToken = jwt.sign(
             { userId: user.id, roleId: user.roleId },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: '5s' }
+            { expiresIn: '15m' }
         )
 
         return res.status(200).json({
@@ -84,7 +81,13 @@ exports.login = async (req, res) => {
         const existingUser = await models.User.findOne({
             where: {
                 username: { [Op.iLike]: username }
-            }
+            }, 
+            include: [
+                {
+                    model: models.DriverProfile, 
+                    as: 'profile'
+                }
+            ]
         })
 
         if (!existingUser) {
@@ -97,6 +100,7 @@ exports.login = async (req, res) => {
 
         // compare password 
         const isPasswordValid = await bcrypt.compare(password, existingUser.password)
+        console.log(isPasswordValid)
 
         if (!isPasswordValid) {
             return res.status(401).json({
@@ -109,14 +113,14 @@ exports.login = async (req, res) => {
         const accessToken = jwt.sign(
             { userId: existingUser.id, roleId: existingUser.roleId },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: '5s' }
+            { expiresIn: '15m' }
         )
 
         // create the refresh token 
         const refreshToken = jwt.sign(
             { userId: existingUser.id, type: 'refresh' },
             process.env.JWT_REFRESH_TOKEN_KEY,
-            { expiresIn: '10s' }
+            { expiresIn: '7d' }
         )
 
         return res.status(200).json({
@@ -125,9 +129,11 @@ exports.login = async (req, res) => {
             accessToken,
             refreshToken,
             userId: existingUser.id,
-            roleId: existingUser.roleId
+            roleId: existingUser.roleId, 
+            isOnline: existingUser.profile?.isOnline ?? null  
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             success: false,
             message: 'Internal server error'

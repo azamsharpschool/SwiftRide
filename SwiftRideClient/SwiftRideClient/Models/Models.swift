@@ -46,6 +46,7 @@ struct LoginResponse: Codable {
     let refreshToken: String?
     let userId: Int?
     let roleId: Int?
+    let isOnline: Bool? 
 }
 
 struct RefreshTokenRequest: Codable {
@@ -57,6 +58,11 @@ struct RefreshTokenResponse: Codable {
 }
 
 struct SecureResponse: Codable {
+    let success: Bool
+    let message: String? 
+}
+
+struct APIResponse: Codable {
     let success: Bool
     let message: String? 
 }

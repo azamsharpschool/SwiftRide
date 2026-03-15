@@ -43,6 +43,10 @@ class AuthenticationStore {
             UserDefaults.standard.set(userId, forKey: "userId")
             UserDefaults.standard.set(roleId, forKey: "roleId")
             
+            if let isOnline = loginResponse.isOnline {
+                UserDefaults.standard.set(isOnline, forKey: "isOnline")
+            }
+            
             authenticationState = .authenticated
         } else {
             authenticationState = .unauthenticated
@@ -79,6 +83,7 @@ class AuthenticationStore {
         // update isAuthentication in UserDefaults
         UserDefaults.standard.removeObject(forKey: "userId")
         UserDefaults.standard.removeObject(forKey: "roleId")
+        UserDefaults.standard.removeObject(forKey: "isOnline")
         authenticationState = .unauthenticated
     }
     

@@ -19,6 +19,7 @@ enum NetworkError: Error {
     case unauthorized
     case errorResponse(ErrorResponse, statusCode: Int)
     case unexpectedStatusCode(Int, Data)
+    case serverError(String)
 }
 
 extension NetworkError: LocalizedError {
@@ -37,6 +38,8 @@ extension NetworkError: LocalizedError {
             return NSLocalizedString("Error \(statusCode): \(errorResponse.message ?? "")", comment: "Error Response")
         case .unexpectedStatusCode(let statusCode, _):
             return NSLocalizedString("Unexpected status code: \(statusCode).", comment: "Unexpected Status Code")
+        case .serverError(let message):
+                    return NSLocalizedString(message, comment: "serverError")
         }
     }
 }
@@ -46,6 +49,7 @@ enum HTTPMethod {
     case post(Data?)
     case delete
     case put(Data?)
+    case patch(Data?)
     
     var name: String {
         switch self {
@@ -57,12 +61,14 @@ enum HTTPMethod {
             return "DELETE"
         case .put:
             return "PUT"
+        case .patch:
+            return "PATCH"
         }
     }
     
     var body: Data? {
         switch self {
-        case .post(let data), .put(let data):
+        case .post(let data), .put(let data), .patch(let data):
             return data
         case .get, .delete:
             return nil
@@ -73,7 +79,7 @@ enum HTTPMethod {
         switch self {
         case .get(let items):
             return items
-        case .post, .put, .delete:
+        case .post, .put, .delete, .patch:
             return nil
         }
     }

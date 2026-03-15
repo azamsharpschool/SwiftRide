@@ -12,6 +12,7 @@ struct SwiftRideClientApp: App {
     
     @AppStorage("roleId") private var roleId: Int = 0
     @State private var authenticationStore = AuthenticationStore(httpClient: HTTPClient())
+    @State private var swiftRideStore = SwiftRideStore(httpClient: HTTPClient())
     
     var body: some Scene {
         WindowGroup {
@@ -23,12 +24,13 @@ struct SwiftRideClientApp: App {
                     if roleId == Role.rider.rawValue {
                         RiderRootScreen()
                     } else {
-                        DriverHomeScreen()
+                        DriverRootScreen()
                     }
                     case .unauthenticated:
                         LoginScreen()
                 }
             }.environment(authenticationStore)
+            .environment(swiftRideStore)
                 .task {
                    // _ = Keychain<String>.delete("accessToken")
                     await authenticationStore.checkAuthentication()
