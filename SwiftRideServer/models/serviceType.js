@@ -7,6 +7,11 @@ module.exports = (sequelize, DataTypes) => {
 
     static associate(models) {
       
+      models.ServiceType.hasMany(models.DriverProfile, {
+        foreignKey: 'serviceTypeId', 
+        as: 'driverProfiles'
+      })
+
     }
 
   }
