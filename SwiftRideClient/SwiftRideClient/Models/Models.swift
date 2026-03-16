@@ -72,11 +72,39 @@ struct ServiceType: Codable, Identifiable, Hashable {
     
     let id: Int
     let name: String
-    
     let baseFare: Double
     let perMileRate: Double
     let perMinuteRate: Double
     let maxPassengers: Int
+    
+    static var preview: [ServiceType] {
+        [
+            ServiceType(
+                id: 1,
+                name: "SwiftRide X",
+                baseFare: 2.50,
+                perMileRate: 1.20,
+                perMinuteRate: 0.25,
+                maxPassengers: 4
+            ),
+            ServiceType(
+                id: 2,
+                name: "SwiftRide SUV",
+                baseFare: 5.00,
+                perMileRate: 2.00,
+                perMinuteRate: 0.35,
+                maxPassengers: 6
+            ),
+            ServiceType(
+                id: 3,
+                name: "SwiftRide Black",
+                baseFare: 8.00,
+                perMileRate: 3.00,
+                perMinuteRate: 0.50,
+                maxPassengers: 4
+            )
+        ]
+    }
 }
 
 struct CreateRideRequest: Codable {

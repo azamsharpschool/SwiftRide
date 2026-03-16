@@ -11,6 +11,9 @@ struct RequestRideScreen: View {
     
     @State private var rideRequest = CreateRideRequest()
     @State private var currentIndex: Int = 0
+    @State private var availableServiceTypes: [ServiceType] = []
+    
+    @Environment(SwiftRideStore.self) private var swiftRideStore
     
     let steps: [RequestRideStep] = [.whereTo, .serviceOptions]
     
@@ -24,7 +27,7 @@ struct RequestRideScreen: View {
         case .whereTo:
             WhereToView(pickupAddress: $rideRequest.pickupAddress, destinationAddress: $rideRequest.destinationAddress)
         case .serviceOptions:
-            ServiceOptionListView()
+            ServiceOptionListView(serviceTypes: availableServiceTypes)
         }
     }
     
@@ -53,7 +56,7 @@ struct RequestRideScreen: View {
     
     var body: some View {
         
-        VStack {
+        Group {
             
             currentStepView
             
@@ -70,6 +73,14 @@ struct RequestRideScreen: View {
             .disabled(!isFormValid)
         }
         .padding()
+        .task {
+            do {
+                availableServiceTypes = try await swiftRideStore.getAvailableServiceTypes()
+                print(availableServiceTypes) 
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
     }
 }
 
