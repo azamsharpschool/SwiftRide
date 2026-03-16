@@ -10,7 +10,6 @@ import SwiftUI
 @main
 struct SwiftRideClientApp: App {
     
-    @AppStorage("roleId") private var roleId: Int = 0
     @State private var authenticationStore = AuthenticationStore(httpClient: HTTPClient())
     @State private var swiftRideStore = SwiftRideStore(httpClient: HTTPClient())
     
@@ -21,7 +20,7 @@ struct SwiftRideClientApp: App {
                     case .checking:
                         ProgressView()
                     case .authenticated:
-                    if roleId == Role.rider.rawValue {
+                    if authenticationStore.userSession?.roleId == Role.rider.rawValue {
                         RiderRootScreen()
                     } else {
                         DriverRootScreen()

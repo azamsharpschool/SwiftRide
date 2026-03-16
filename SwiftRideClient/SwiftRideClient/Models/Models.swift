@@ -91,3 +91,9 @@ struct CreateRideRequest: Codable {
     var destinationLongitude: Double = 0
     var destinationAddress: String = ""
 }
+
+struct UserSession: Codable {
+    let userId: Int
+    let roleId: Int
+    let isOnline: Bool?
+}

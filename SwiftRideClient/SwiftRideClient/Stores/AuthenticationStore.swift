@@ -12,6 +12,7 @@ import Observation
 class AuthenticationStore {
     
     let httpClient: HTTPClient
+    var userSession: UserSession?
     var authenticationState: AuthenticationState = .checking
     
     enum AuthenticationState {
@@ -39,13 +40,11 @@ class AuthenticationStore {
             Keychain.set(accessToken, forKey: "accessToken")
             Keychain.set(refreshToken, forKey: "refreshToken")
             
-            // update the user defaults
-            UserDefaults.standard.set(userId, forKey: "userId")
-            UserDefaults.standard.set(roleId, forKey: "roleId")
+            print(roleId)
             
-            if let isOnline = loginResponse.isOnline {
-                UserDefaults.standard.set(isOnline, forKey: "isOnline")
-            }
+            // create the session
+            userSession = UserSession(userId: userId, roleId: roleId, isOnline: loginResponse.isOnline)
+            UserDefaults.standard.userSession = userSession
             
             authenticationState = .authenticated
         } else {
@@ -80,17 +79,21 @@ class AuthenticationStore {
         // remove from keychain
         _ = Keychain<String>.delete("accessToken")
         _ = Keychain<String>.delete("refreshToken")
-        // update isAuthentication in UserDefaults
-        UserDefaults.standard.removeObject(forKey: "userId")
-        UserDefaults.standard.removeObject(forKey: "roleId")
-        UserDefaults.standard.removeObject(forKey: "isOnline")
+        
+        UserDefaults.standard.userSession = nil
         authenticationState = .unauthenticated
     }
     
     func checkAuthentication() async {
         
+        guard let session = UserDefaults.standard.userSession else {
+            logout()
+            return
+        }
+        
         if let accessToken: String = Keychain.get("accessToken"),
            !JWTDecoder.isTokenExpired(accessToken) {
+            self.userSession = session
             authenticationState = .authenticated
             return
         }
@@ -100,10 +103,10 @@ class AuthenticationStore {
             return
         }
         
-        // refresh the access token
         do {
             try await httpClient.refreshAccessToken()
-            authenticationState = .authenticated 
+            self.userSession = session
+            authenticationState = .authenticated
         } catch {
             logout()
         }
