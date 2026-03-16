@@ -155,7 +155,7 @@ exports.register = async (req, res) => {
 
     try {
 
-        const { username, password, roleId, make, model, licensePlate } = req.body
+        const { username, password, roleId, make, model, licensePlate, serviceTypeId } = req.body
 
         // find if the username already exists 
         const existingUser = await models.User.findOne({
@@ -187,7 +187,8 @@ exports.register = async (req, res) => {
                     userId: user.id,
                     make: make,
                     model: model,
-                    licensePlate: licensePlate
+                    licensePlate: licensePlate, 
+                    serviceTypeId: serviceTypeId 
                 }, { transaction: t })
             }
         })

@@ -32,6 +32,7 @@ struct RegisterRequest: Codable {
     var make: String?
     var model: String?
     var licensePlate: String?
+    var serviceTypeId: Int? 
 }
 
 struct RegisterResponse: Codable {

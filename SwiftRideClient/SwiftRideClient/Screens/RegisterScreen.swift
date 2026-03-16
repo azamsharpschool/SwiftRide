@@ -15,7 +15,7 @@ struct RegisterScreen: View {
     @State private var make: String = ""
     @State private var model: String = ""
     @State private var licensePlate: String = ""
-    @State private var serviceType: ServiceType?
+    @State private var serviceTypeId: Int?
     @State private var errorMessage: String?
     @State private var isAuthenticating: Bool = false
     
@@ -38,7 +38,8 @@ struct RegisterScreen: View {
                 roleId: role.id,
                 make: role == .driver ? make : nil,
                 model: role == .driver ? model : nil,
-                licensePlate: role == .driver ? licensePlate : nil
+                licensePlate: role == .driver ? licensePlate : nil,
+                serviceTypeId: role == .driver ? serviceTypeId : nil
             )
             
             let response = try await authenticationStore.register(registerRequest)
@@ -140,10 +141,10 @@ struct RegisterScreen: View {
                         
                         if role == .driver {
                             
-                            Picker("Service Type", selection: $serviceType) {
+                            Picker("Service Type", selection: $serviceTypeId) {
                                 ForEach(serviceTypes) { serviceType in
                                     Text(serviceType.name)
-                                        .tag(serviceType)
+                                        .tag(serviceType.id)
                                 }
                             }.pickerStyle(.segmented)
                             
@@ -211,8 +212,8 @@ struct RegisterScreen: View {
             }.task {
                 do { 
                     serviceTypes = try await swiftRideStore.getServiceTypes()
-                    print(serviceTypes)
-                    serviceType = serviceTypes[0]
+                    serviceTypeId = serviceTypes.first(where: { $0.name == "SwiftRide X" })?.id
+                        ?? serviceTypes.first?.id
                 } catch {
                     print(error.localizedDescription)
                 }

@@ -16,10 +16,20 @@ module.exports = (sequelize, DataTypes) => {
         as: 'user'
       })
 
+      models.DriverProfile.belongsTo(models.ServiceType, {
+        foreignKey: 'serviceTypeId', 
+        as: 'serviceType'
+      })
+
     }
   }
   DriverProfile.init({
     userId: DataTypes.INTEGER,
+    serviceTypeId: {
+      type: DataTypes.INTEGER, 
+      allowNull: false, 
+      defaultValue: 1 
+    },
     make: DataTypes.STRING,
     model: DataTypes.STRING,
     licensePlate: DataTypes.STRING, 
