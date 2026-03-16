@@ -67,27 +67,20 @@ struct APIResponse: Codable {
     let message: String?
 }
 
-enum ServiceType: String, Codable, CaseIterable {
+struct ServiceType: Codable, Identifiable, Hashable {
     
-    case swiftrideX = "SWIFTRIDE_X"
-    case swiftrideBlack = "SWIFTRIDE_BLACK"
-    case swiftrideSUV = "SWIFTRIDE_SUV"
+    let id: Int
+    let name: String
     
-    var displayName: String {
-        switch self {
-        case .swiftrideX:
-            return "SwiftRide X"
-        case .swiftrideBlack:
-            return "SwiftRide Black"
-        case .swiftrideSUV:
-            return "SwiftRide SUV"
-        }
-    }
+    let baseFare: Double
+    let perMileRate: Double
+    let perMinuteRate: Double
+    let maxPassengers: Int
 }
 
 struct CreateRideRequest: Codable {
     
-    var serviceType: ServiceType = .swiftrideX
+    //var serviceType: ServiceType = .swiftrideX
     
     var pickupLatitude: Double = 0
     var pickupLongitude: Double = 0

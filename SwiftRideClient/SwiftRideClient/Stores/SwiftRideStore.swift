@@ -17,6 +17,11 @@ class SwiftRideStore {
         self.httpClient = httpClient
     }
     
+    func getServiceTypes() async throws -> [ServiceType] {
+        let resource = Resource(url: Constants.Urls.serviceTypes, modelType: [ServiceType].self)
+        return try await httpClient.load(resource)
+    }
+    
     func updateDriverStatus(isOnline: Bool) async throws {
         
         let body = ["isOnline": isOnline]

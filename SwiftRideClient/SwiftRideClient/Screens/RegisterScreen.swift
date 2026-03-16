@@ -15,11 +15,15 @@ struct RegisterScreen: View {
     @State private var make: String = ""
     @State private var model: String = ""
     @State private var licensePlate: String = ""
+    @State private var serviceType: ServiceType?
     @State private var errorMessage: String?
     @State private var isAuthenticating: Bool = false
     
     @Environment(\.dismiss) private var dismiss
     @Environment(AuthenticationStore.self) private var authenticationStore
+    @Environment(SwiftRideStore.self) private var swiftRideStore
+    
+    @State private var serviceTypes: [ServiceType] = []
     
     private func register() async {
         
@@ -135,6 +139,14 @@ struct RegisterScreen: View {
                             .tint(Color(red: 0.44, green: 0.86, blue: 0.36))
                         
                         if role == .driver {
+                            
+                            Picker("Service Type", selection: $serviceType) {
+                                ForEach(serviceTypes) { serviceType in
+                                    Text(serviceType.name)
+                                        .tag(serviceType)
+                                }
+                            }.pickerStyle(.segmented)
+                            
                             TextField("Make", text: $make, prompt: Text("Make").foregroundStyle(.white.opacity(0.6)))
                                 .padding(14)
                                 .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
@@ -196,6 +208,14 @@ struct RegisterScreen: View {
                 .padding(24)
             }
             .scrollDismissesKeyboard(.interactively)
+            }.task {
+                do { 
+                    serviceTypes = try await swiftRideStore.getServiceTypes()
+                    print(serviceTypes)
+                    serviceType = serviceTypes[0]
+                } catch {
+                    print(error.localizedDescription)
+                }
             }
         
     }
@@ -204,5 +224,7 @@ struct RegisterScreen: View {
 #Preview {
     NavigationStack {
         RegisterScreen()
-    }.environment(AuthenticationStore(httpClient: .development))
+    }
+    .environment(AuthenticationStore(httpClient: .development))
+    .environment(SwiftRideStore(httpClient: .development))
 }
